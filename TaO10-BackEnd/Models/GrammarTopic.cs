@@ -13,6 +13,8 @@ public partial class GrammarTopic
 
     public int? LessonsCount { get; set; }
 
+    public bool? IsDeleted { get; set; }
+
     public DateTime? CreatedAt { get; set; }
 
     public virtual ICollection<GrammarLesson> GrammarLessons { get; set; } = new List<GrammarLesson>();

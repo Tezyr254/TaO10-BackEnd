@@ -29,5 +29,7 @@ public partial class Document
 
     public string? DocumentType { get; set; }
 
+    public bool? IsDeleted { get; set; }
+
     public DateTime? CreatedAt { get; set; }
 }

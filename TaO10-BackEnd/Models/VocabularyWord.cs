@@ -7,7 +7,7 @@ public partial class VocabularyWord
 {
     public Guid VocabularyWordId { get; set; }
 
-    public Guid VocabularyTopicId { get; set; }
+    public Guid? VocabularyTopicId { get; set; }
 
     public string Word { get; set; } = null!;
 
@@ -25,5 +25,5 @@ public partial class VocabularyWord
 
     public DateTime? CreatedAt { get; set; }
 
-    public virtual VocabularyTopic VocabularyTopic { get; set; } = null!;
+    public virtual VocabularyTopic? VocabularyTopic { get; set; }
 }

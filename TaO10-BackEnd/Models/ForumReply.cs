@@ -9,7 +9,7 @@ public partial class ForumReply
 
     public Guid ForumThreadId { get; set; }
 
-    public Guid UserId { get; set; }
+    public Guid? UserId { get; set; }
 
     public string Content { get; set; } = null!;
 
@@ -19,5 +19,5 @@ public partial class ForumReply
 
     public virtual ForumThread ForumThread { get; set; } = null!;
 
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; }
 }

@@ -35,6 +35,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Package> Packages { get; set; }
 
+    public virtual DbSet<PackageExam> PackageExams { get; set; }
+
     public virtual DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
     public virtual DbSet<Payment> Payments { get; set; }
@@ -42,10 +44,6 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Question> Questions { get; set; }
 
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
-
-    public virtual DbSet<Schedule> Schedules { get; set; }
-
-    public virtual DbSet<Testimonial> Testimonials { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
@@ -88,6 +86,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("created_at");
+            entity.Property(e => e.IsDeleted)
+                .HasDefaultValue(false)
+                .HasColumnName("is_deleted");
             entity.Property(e => e.IsPublished)
                 .HasDefaultValue(true)
                 .HasColumnName("is_published");
@@ -102,9 +103,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Title)
                 .HasMaxLength(500)
                 .HasColumnName("title");
-            entity.Property(e => e.ViewsCount)
-                .HasDefaultValue(0)
-                .HasColumnName("views_count");
+            entity.Property(e => e.ViewsCount).HasColumnName("views_count");
         });
 
         modelBuilder.Entity<Document>(entity =>
@@ -129,15 +128,16 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.DocumentType)
                 .HasMaxLength(100)
                 .HasColumnName("document_type");
-            entity.Property(e => e.DownloadsCount)
-                .HasDefaultValue(0)
-                .HasColumnName("downloads_count");
+            entity.Property(e => e.DownloadsCount).HasColumnName("downloads_count");
             entity.Property(e => e.FileType)
                 .HasMaxLength(50)
                 .HasColumnName("file_type");
             entity.Property(e => e.FileUrl)
                 .HasMaxLength(500)
                 .HasColumnName("file_url");
+            entity.Property(e => e.IsDeleted)
+                .HasDefaultValue(false)
+                .HasColumnName("is_deleted");
             entity.Property(e => e.Pages)
                 .HasMaxLength(50)
                 .HasColumnName("pages");
@@ -161,19 +161,11 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.ExamId)
                 .HasDefaultValueSql("uuid_generate_v4()")
                 .HasColumnName("exam_id");
-            entity.Property(e => e.AttemptsCount)
-                .HasDefaultValue(0)
-                .HasColumnName("attempts_count");
-            entity.Property(e => e.CoverClass)
-                .HasMaxLength(100)
-                .HasColumnName("cover_class");
+            entity.Property(e => e.AttemptsCount).HasColumnName("attempts_count");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("created_at");
             entity.Property(e => e.Description).HasColumnName("description");
-            entity.Property(e => e.Difficulty)
-                .HasMaxLength(50)
-                .HasColumnName("difficulty");
             entity.Property(e => e.DurationMinutes).HasColumnName("duration_minutes");
             entity.Property(e => e.ExamType)
                 .HasMaxLength(100)
@@ -181,31 +173,21 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.IsActive)
                 .HasDefaultValue(true)
                 .HasColumnName("is_active");
-            entity.Property(e => e.PackageId).HasColumnName("package_id");
-            entity.Property(e => e.QuestionsCount)
-                .HasDefaultValue(0)
-                .HasColumnName("questions_count");
-            entity.Property(e => e.Tag)
-                .HasMaxLength(100)
-                .HasColumnName("tag");
-            entity.Property(e => e.TagClass)
-                .HasMaxLength(100)
-                .HasColumnName("tag_class");
+            entity.Property(e => e.IsDeleted)
+                .HasDefaultValue(false)
+                .HasColumnName("is_deleted");
+            entity.Property(e => e.Level)
+                .HasMaxLength(10)
+                .HasColumnName("level");
+            entity.Property(e => e.QuestionsCount).HasColumnName("questions_count");
             entity.Property(e => e.Title)
                 .HasMaxLength(500)
                 .HasColumnName("title");
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("updated_at");
-            entity.Property(e => e.ViewsCount)
-                .HasDefaultValue(0)
-                .HasColumnName("views_count");
+            entity.Property(e => e.ViewsCount).HasColumnName("views_count");
             entity.Property(e => e.Year).HasColumnName("year");
-
-            entity.HasOne(d => d.Package).WithMany(p => p.Exams)
-                .HasForeignKey(d => d.PackageId)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("exams_package_id_fkey");
         });
 
         modelBuilder.Entity<ForumCategory>(entity =>
@@ -227,12 +209,8 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(255)
                 .HasColumnName("name");
-            entity.Property(e => e.RepliesCount)
-                .HasDefaultValue(0)
-                .HasColumnName("replies_count");
-            entity.Property(e => e.ThreadsCount)
-                .HasDefaultValue(0)
-                .HasColumnName("threads_count");
+            entity.Property(e => e.RepliesCount).HasColumnName("replies_count");
+            entity.Property(e => e.ThreadsCount).HasColumnName("threads_count");
         });
 
         modelBuilder.Entity<ForumReply>(entity =>
@@ -260,6 +238,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.ForumReplies)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("forum_replies_user_id_fkey");
         });
 
@@ -278,15 +257,16 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("created_at");
             entity.Property(e => e.Excerpt).HasColumnName("excerpt");
             entity.Property(e => e.ForumCategoryId).HasColumnName("forum_category_id");
+            entity.Property(e => e.IsDeleted)
+                .HasDefaultValue(false)
+                .HasColumnName("is_deleted");
             entity.Property(e => e.IsHot)
                 .HasDefaultValue(false)
                 .HasColumnName("is_hot");
             entity.Property(e => e.IsPinned)
                 .HasDefaultValue(false)
                 .HasColumnName("is_pinned");
-            entity.Property(e => e.RepliesCount)
-                .HasDefaultValue(0)
-                .HasColumnName("replies_count");
+            entity.Property(e => e.RepliesCount).HasColumnName("replies_count");
             entity.Property(e => e.Tags)
                 .HasColumnType("jsonb")
                 .HasColumnName("tags");
@@ -297,9 +277,7 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("updated_at");
             entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.ViewsCount)
-                .HasDefaultValue(0)
-                .HasColumnName("views_count");
+            entity.Property(e => e.ViewsCount).HasColumnName("views_count");
 
             entity.HasOne(d => d.ForumCategory).WithMany(p => p.ForumThreads)
                 .HasForeignKey(d => d.ForumCategoryId)
@@ -308,6 +286,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.ForumThreads)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("forum_threads_user_id_fkey");
         });
 
@@ -324,13 +303,13 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("created_at");
+            entity.Property(e => e.Difficulty)
+                .HasMaxLength(50)
+                .HasColumnName("difficulty");
             entity.Property(e => e.GrammarTopicId).HasColumnName("grammar_topic_id");
             entity.Property(e => e.LessonType)
                 .HasMaxLength(100)
                 .HasColumnName("lesson_type");
-            entity.Property(e => e.Level)
-                .HasMaxLength(50)
-                .HasColumnName("level");
             entity.Property(e => e.OrderIndex).HasColumnName("order_index");
             entity.Property(e => e.Title)
                 .HasMaxLength(500)
@@ -338,6 +317,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.GrammarTopic).WithMany(p => p.GrammarLessons)
                 .HasForeignKey(d => d.GrammarTopicId)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("grammar_lessons_grammar_topic_id_fkey");
         });
 
@@ -354,9 +334,10 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("created_at");
             entity.Property(e => e.Description).HasColumnName("description");
-            entity.Property(e => e.LessonsCount)
-                .HasDefaultValue(0)
-                .HasColumnName("lessons_count");
+            entity.Property(e => e.IsDeleted)
+                .HasDefaultValue(false)
+                .HasColumnName("is_deleted");
+            entity.Property(e => e.LessonsCount).HasColumnName("lessons_count");
             entity.Property(e => e.Name)
                 .HasMaxLength(255)
                 .HasColumnName("name");
@@ -403,16 +384,45 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.DurationDays).HasColumnName("duration_days");
             entity.Property(e => e.ExamLimit).HasColumnName("exam_limit");
-            entity.Property(e => e.IsActive)
-                .HasDefaultValue(true)
-                .HasColumnName("is_active");
+            entity.Property(e => e.IsDeleted)
+                .HasDefaultValue(false)
+                .HasColumnName("is_deleted");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
+            entity.Property(e => e.PackageStatus)
+                .HasMaxLength(20)
+                .HasColumnName("package_status");
             entity.Property(e => e.Price).HasColumnName("price");
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("updated_at");
+        });
+
+        modelBuilder.Entity<PackageExam>(entity =>
+        {
+            entity.HasKey(e => e.PackageExamId).HasName("package_exams_pkey");
+
+            entity.ToTable("package_exams");
+
+            entity.HasIndex(e => new { e.PackageId, e.ExamId }, "package_exams_package_id_exam_id_key").IsUnique();
+
+            entity.Property(e => e.PackageExamId)
+                .HasDefaultValueSql("uuid_generate_v4()")
+                .HasColumnName("package_exam_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("created_at");
+            entity.Property(e => e.ExamId).HasColumnName("exam_id");
+            entity.Property(e => e.PackageId).HasColumnName("package_id");
+
+            entity.HasOne(d => d.Exam).WithMany(p => p.PackageExams)
+                .HasForeignKey(d => d.ExamId)
+                .HasConstraintName("package_exams_exam_id_fkey");
+
+            entity.HasOne(d => d.Package).WithMany(p => p.PackageExams)
+                .HasForeignKey(d => d.PackageId)
+                .HasConstraintName("package_exams_package_id_fkey");
         });
 
         modelBuilder.Entity<PasswordResetToken>(entity =>
@@ -465,11 +475,10 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.PaymentMethod)
                 .HasMaxLength(50)
                 .HasColumnName("payment_method");
-            entity.Property(e => e.ReceivedAmount).HasColumnName("received_amount");
-            entity.Property(e => e.Status)
+            entity.Property(e => e.PaymentStatus)
                 .HasMaxLength(20)
-                .HasDefaultValueSql("'pending'::character varying")
-                .HasColumnName("status");
+                .HasColumnName("payment_status");
+            entity.Property(e => e.ReceivedAmount).HasColumnName("received_amount");
             entity.Property(e => e.TransactionCode)
                 .HasMaxLength(100)
                 .HasColumnName("transaction_code");
@@ -480,11 +489,12 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Package).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.PackageId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("payments_package_id_fkey");
 
             entity.HasOne(d => d.User).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("payments_user_id_fkey");
         });
 
@@ -497,19 +507,23 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.QuestionId)
                 .HasDefaultValueSql("uuid_generate_v4()")
                 .HasColumnName("question_id");
-            entity.Property(e => e.CorrectAnswer).HasColumnName("correct_answer");
+            entity.Property(e => e.CorrectAnswer)
+                .HasMaxLength(10)
+                .HasColumnName("correct_answer");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("created_at");
             entity.Property(e => e.ExamId).HasColumnName("exam_id");
             entity.Property(e => e.Explanation).HasColumnName("explanation");
+            entity.Property(e => e.IsDeleted)
+                .HasDefaultValue(false)
+                .HasColumnName("is_deleted");
             entity.Property(e => e.OptionA).HasColumnName("option_a");
             entity.Property(e => e.OptionB).HasColumnName("option_b");
             entity.Property(e => e.OptionC).HasColumnName("option_c");
             entity.Property(e => e.OptionD).HasColumnName("option_d");
             entity.Property(e => e.Points)
                 .HasPrecision(3, 1)
-                .HasDefaultValueSql("0.25")
                 .HasColumnName("points");
             entity.Property(e => e.QuestionNumber).HasColumnName("question_number");
             entity.Property(e => e.QuestionText).HasColumnName("question_text");
@@ -519,6 +533,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Exam).WithMany(p => p.Questions)
                 .HasForeignKey(d => d.ExamId)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("questions_exam_id_fkey");
         });
 
@@ -549,65 +564,6 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("refresh_tokens_user_id_fkey");
         });
 
-        modelBuilder.Entity<Schedule>(entity =>
-        {
-            entity.HasKey(e => e.ScheduleId).HasName("schedules_pkey");
-
-            entity.ToTable("schedules");
-
-            entity.Property(e => e.ScheduleId)
-                .HasDefaultValueSql("uuid_generate_v4()")
-                .HasColumnName("schedule_id");
-            entity.Property(e => e.BgClass)
-                .HasMaxLength(100)
-                .HasColumnName("bg_class");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnName("created_at");
-            entity.Property(e => e.Day).HasColumnName("day");
-            entity.Property(e => e.EventDate).HasColumnName("event_date");
-            entity.Property(e => e.Month)
-                .HasMaxLength(50)
-                .HasColumnName("month");
-            entity.Property(e => e.Time)
-                .HasMaxLength(100)
-                .HasColumnName("time");
-            entity.Property(e => e.Title)
-                .HasMaxLength(500)
-                .HasColumnName("title");
-        });
-
-        modelBuilder.Entity<Testimonial>(entity =>
-        {
-            entity.HasKey(e => e.TestimonialId).HasName("testimonials_pkey");
-
-            entity.ToTable("testimonials");
-
-            entity.Property(e => e.TestimonialId)
-                .HasDefaultValueSql("uuid_generate_v4()")
-                .HasColumnName("testimonial_id");
-            entity.Property(e => e.AvatarBg)
-                .HasMaxLength(500)
-                .HasColumnName("avatar_bg");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnName("created_at");
-            entity.Property(e => e.Initial)
-                .HasMaxLength(1)
-                .HasColumnName("initial");
-            entity.Property(e => e.IsFeatured)
-                .HasDefaultValue(false)
-                .HasColumnName("is_featured");
-            entity.Property(e => e.Meta)
-                .HasMaxLength(255)
-                .HasColumnName("meta");
-            entity.Property(e => e.Name)
-                .HasMaxLength(255)
-                .HasColumnName("name");
-            entity.Property(e => e.Rating).HasColumnName("rating");
-            entity.Property(e => e.Text).HasColumnName("text");
-        });
-
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.UserId).HasName("users_pkey");
@@ -621,9 +577,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.UserId)
                 .HasDefaultValueSql("uuid_generate_v4()")
                 .HasColumnName("user_id");
-            entity.Property(e => e.AvatarUrl)
+            entity.Property(e => e.Avatar)
                 .HasMaxLength(500)
-                .HasColumnName("avatar_url");
+                .HasColumnName("avatar");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("created_at");
@@ -636,6 +592,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.IsActive)
                 .HasDefaultValue(true)
                 .HasColumnName("is_active");
+            entity.Property(e => e.IsDeleted)
+                .HasDefaultValue(false)
+                .HasColumnName("is_deleted");
             entity.Property(e => e.Location)
                 .HasMaxLength(255)
                 .HasColumnName("location");
@@ -647,14 +606,9 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("phone");
             entity.Property(e => e.Role)
                 .HasMaxLength(20)
-                .HasDefaultValueSql("'customer'::character varying")
                 .HasColumnName("role");
-            entity.Property(e => e.TotalExams)
-                .HasDefaultValue(0)
-                .HasColumnName("total_exams");
-            entity.Property(e => e.TotalScore)
-                .HasDefaultValue(0)
-                .HasColumnName("total_score");
+            entity.Property(e => e.TotalExams).HasColumnName("total_exams");
+            entity.Property(e => e.TotalScore).HasColumnName("total_score");
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("updated_at");
@@ -672,33 +626,33 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.AnsweredAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("answered_at");
-            entity.Property(e => e.AttemptId).HasColumnName("attempt_id");
             entity.Property(e => e.IsCorrect).HasColumnName("is_correct");
             entity.Property(e => e.QuestionId).HasColumnName("question_id");
             entity.Property(e => e.UserAnswer1)
                 .HasMaxLength(1)
                 .HasColumnName("user_answer");
-
-            entity.HasOne(d => d.Attempt).WithMany(p => p.UserAnswers)
-                .HasForeignKey(d => d.AttemptId)
-                .HasConstraintName("user_answers_attempt_id_fkey");
+            entity.Property(e => e.UserExamAttemptId).HasColumnName("user_exam_attempt_id");
 
             entity.HasOne(d => d.Question).WithMany(p => p.UserAnswers)
                 .HasForeignKey(d => d.QuestionId)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_answers_question_id_fkey");
+
+            entity.HasOne(d => d.UserExamAttempt).WithMany(p => p.UserAnswers)
+                .HasForeignKey(d => d.UserExamAttemptId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("user_answers_user_exam_attempt_id_fkey");
         });
 
         modelBuilder.Entity<UserExamAttempt>(entity =>
         {
-            entity.HasKey(e => e.AttemptId).HasName("user_exam_attempts_pkey");
+            entity.HasKey(e => e.UserExamAttemptId).HasName("user_exam_attempts_pkey");
 
             entity.ToTable("user_exam_attempts");
 
-            entity.HasIndex(e => new { e.UserId, e.ExamId, e.StartedAt }, "user_exam_attempts_user_id_exam_id_started_at_key").IsUnique();
-
-            entity.Property(e => e.AttemptId)
+            entity.Property(e => e.UserExamAttemptId)
                 .HasDefaultValueSql("uuid_generate_v4()")
-                .HasColumnName("attempt_id");
+                .HasColumnName("user_exam_attempt_id");
             entity.Property(e => e.CompletedAt).HasColumnName("completed_at");
             entity.Property(e => e.CorrectAnswers).HasColumnName("correct_answers");
             entity.Property(e => e.ExamId).HasColumnName("exam_id");
@@ -717,10 +671,12 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Exam).WithMany(p => p.UserExamAttempts)
                 .HasForeignKey(d => d.ExamId)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_exam_attempts_exam_id_fkey");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserExamAttempts)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_exam_attempts_user_id_fkey");
         });
 
@@ -742,7 +698,6 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("is_active");
             entity.Property(e => e.PackageId).HasColumnName("package_id");
             entity.Property(e => e.PaymentId).HasColumnName("payment_id");
-            entity.Property(e => e.RemainingExams).HasColumnName("remaining_exams");
             entity.Property(e => e.StartDate)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("start_date");
@@ -753,29 +708,31 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Package).WithMany(p => p.UserPackages)
                 .HasForeignKey(d => d.PackageId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_packages_package_id_fkey");
 
             entity.HasOne(d => d.Payment).WithMany(p => p.UserPackages)
                 .HasForeignKey(d => d.PaymentId)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_packages_payment_id_fkey");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserPackages)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_packages_user_id_fkey");
         });
 
         modelBuilder.Entity<UserProgress>(entity =>
         {
-            entity.HasKey(e => e.ProgressId).HasName("user_progress_pkey");
+            entity.HasKey(e => e.UserProgressId).HasName("user_progress_pkey");
 
             entity.ToTable("user_progress");
 
             entity.HasIndex(e => new { e.UserId, e.ItemType, e.ItemId }, "user_progress_user_id_item_type_item_id_key").IsUnique();
 
-            entity.Property(e => e.ProgressId)
+            entity.Property(e => e.UserProgressId)
                 .HasDefaultValueSql("uuid_generate_v4()")
-                .HasColumnName("progress_id");
+                .HasColumnName("user_progress_id");
             entity.Property(e => e.ItemId).HasColumnName("item_id");
             entity.Property(e => e.ItemType)
                 .HasMaxLength(50)
@@ -783,13 +740,12 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.LastAccessed)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("last_accessed");
-            entity.Property(e => e.ProgressPercentage)
-                .HasDefaultValue(0)
-                .HasColumnName("progress_percentage");
+            entity.Property(e => e.ProgressPercentage).HasColumnName("progress_percentage");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserProgresses)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_progress_user_id_fkey");
         });
 
@@ -806,12 +762,13 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("created_at");
             entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.IsDeleted)
+                .HasDefaultValue(false)
+                .HasColumnName("is_deleted");
             entity.Property(e => e.Name)
                 .HasMaxLength(255)
                 .HasColumnName("name");
-            entity.Property(e => e.WordsCount)
-                .HasDefaultValue(0)
-                .HasColumnName("words_count");
+            entity.Property(e => e.WordsCount).HasColumnName("words_count");
         });
 
         modelBuilder.Entity<VocabularyWord>(entity =>
@@ -845,6 +802,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.VocabularyTopic).WithMany(p => p.VocabularyWords)
                 .HasForeignKey(d => d.VocabularyTopicId)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("vocabulary_words_vocabulary_topic_id_fkey");
         });
 

@@ -5,11 +5,11 @@ namespace TaO10_BackEnd.Models;
 
 public partial class UserExamAttempt
 {
-    public Guid AttemptId { get; set; }
+    public Guid UserExamAttemptId { get; set; }
 
-    public Guid UserId { get; set; }
+    public Guid? UserId { get; set; }
 
-    public Guid ExamId { get; set; }
+    public Guid? ExamId { get; set; }
 
     public DateTime? StartedAt { get; set; }
 
@@ -25,9 +25,9 @@ public partial class UserExamAttempt
 
     public bool? IsCompleted { get; set; }
 
-    public virtual Exam Exam { get; set; } = null!;
+    public virtual Exam? Exam { get; set; }
 
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; }
 
     public virtual ICollection<UserAnswer> UserAnswers { get; set; } = new List<UserAnswer>();
 }

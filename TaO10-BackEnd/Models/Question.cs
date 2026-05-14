@@ -7,7 +7,7 @@ public partial class Question
 {
     public Guid QuestionId { get; set; }
 
-    public Guid ExamId { get; set; }
+    public Guid? ExamId { get; set; }
 
     public int QuestionNumber { get; set; }
 
@@ -29,9 +29,11 @@ public partial class Question
 
     public decimal? Points { get; set; }
 
+    public bool? IsDeleted { get; set; }
+
     public DateTime? CreatedAt { get; set; }
 
-    public virtual Exam Exam { get; set; } = null!;
+    public virtual Exam? Exam { get; set; }
 
     public virtual ICollection<UserAnswer> UserAnswers { get; set; } = new List<UserAnswer>();
 }

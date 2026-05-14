@@ -19,9 +19,11 @@ public partial class BlogPost
 
     public int? ViewsCount { get; set; }
 
+    public bool? IsPublished { get; set; }
+
+    public bool? IsDeleted { get; set; }
+
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? PublishedAt { get; set; }
-
-    public bool? IsPublished { get; set; }
 }

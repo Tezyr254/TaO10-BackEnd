@@ -13,9 +13,9 @@ public partial class User
 
     public string FullName { get; set; } = null!;
 
-    public string? AvatarUrl { get; set; }
+    public string? Avatar { get; set; }
 
-    public string Phone { get; set; } = null!;
+    public string? Phone { get; set; }
 
     public string? Location { get; set; }
 
@@ -23,13 +23,15 @@ public partial class User
 
     public int? TotalExams { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
-
-    public DateTime? UpdatedAt { get; set; }
+    public string Role { get; set; } = null!;
 
     public bool? IsActive { get; set; }
 
-    public string? Role { get; set; }
+    public bool? IsDeleted { get; set; }
+
+    public DateTime? CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
 
     public virtual ICollection<ForumReply> ForumReplies { get; set; } = new List<ForumReply>();
 

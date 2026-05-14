@@ -13,6 +13,8 @@ public partial class VocabularyTopic
 
     public int? WordsCount { get; set; }
 
+    public bool? IsDeleted { get; set; }
+
     public DateTime? CreatedAt { get; set; }
 
     public virtual ICollection<VocabularyWord> VocabularyWords { get; set; } = new List<VocabularyWord>();

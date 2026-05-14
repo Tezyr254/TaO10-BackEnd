@@ -7,9 +7,9 @@ public partial class Payment
 {
     public Guid PaymentId { get; set; }
 
-    public Guid UserId { get; set; }
+    public Guid? UserId { get; set; }
 
-    public Guid PackageId { get; set; }
+    public Guid? PackageId { get; set; }
 
     public int ExpectedAmount { get; set; }
 
@@ -19,19 +19,19 @@ public partial class Payment
 
     public string? TransactionCode { get; set; }
 
-    public string Status { get; set; } = null!;
-
-    public DateTime? CreatedAt { get; set; }
+    public string PaymentStatus { get; set; } = null!;
 
     public DateTime? PaidAt { get; set; }
 
     public DateTime? ExpiredAt { get; set; }
 
+    public DateTime? CreatedAt { get; set; }
+
     public DateTime? UpdatedAt { get; set; }
 
-    public virtual Package Package { get; set; } = null!;
+    public virtual Package? Package { get; set; }
 
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; }
 
     public virtual ICollection<UserPackage> UserPackages { get; set; } = new List<UserPackage>();
 }

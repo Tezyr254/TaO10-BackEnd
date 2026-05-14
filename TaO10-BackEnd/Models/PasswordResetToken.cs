@@ -13,7 +13,7 @@ public partial class PasswordResetToken
 
     public DateTime ExpiryTime { get; set; }
 
-    public bool IsUsed { get; set; }
+    public bool? IsUsed { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 

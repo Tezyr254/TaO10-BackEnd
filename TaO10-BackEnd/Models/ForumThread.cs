@@ -7,7 +7,7 @@ public partial class ForumThread
 {
     public Guid ForumThreadId { get; set; }
 
-    public Guid UserId { get; set; }
+    public Guid? UserId { get; set; }
 
     public Guid? ForumCategoryId { get; set; }
 
@@ -27,6 +27,8 @@ public partial class ForumThread
 
     public int? RepliesCount { get; set; }
 
+    public bool? IsDeleted { get; set; }
+
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
@@ -35,5 +37,5 @@ public partial class ForumThread
 
     public virtual ICollection<ForumReply> ForumReplies { get; set; } = new List<ForumReply>();
 
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; }
 }

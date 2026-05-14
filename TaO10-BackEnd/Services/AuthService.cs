@@ -74,7 +74,7 @@ public class AuthService : IAuthService
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 IsActive = true,
-                AvatarUrl = "",
+                Avatar= "",
                 Location = location,
                 TotalScore = 0,
                 TotalExams = 0
@@ -173,7 +173,7 @@ public class AuthService : IAuthService
             .FirstOrDefaultAsync(t => t.Token == refreshToken);
 
         if (tokenEntity == null ||
-            tokenEntity.IsRevoked ==true ||
+            tokenEntity.IsRevoked == true ||
             tokenEntity.ExpiresAt < DateTime.UtcNow)
             throw new UnauthorizedAccessException("Refresh token không hợp lệ.");
 
