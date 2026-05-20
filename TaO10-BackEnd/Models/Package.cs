@@ -13,13 +13,9 @@ public partial class Package
 
     public int Price { get; set; }
 
-    public int ExamLimit { get; set; }
+    public int? DurationTime { get; set; }
 
-    public int? DurationDays { get; set; }
-
-    public string PackageStatus { get; set; } = null!;
-
-    public bool? IsDeleted { get; set; }
+    public Guid StatusId { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
@@ -28,6 +24,8 @@ public partial class Package
     public virtual ICollection<PackageExam> PackageExams { get; set; } = new List<PackageExam>();
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
+    public virtual Status Status { get; set; } = null!;
 
     public virtual ICollection<UserPackage> UserPackages { get; set; } = new List<UserPackage>();
 }

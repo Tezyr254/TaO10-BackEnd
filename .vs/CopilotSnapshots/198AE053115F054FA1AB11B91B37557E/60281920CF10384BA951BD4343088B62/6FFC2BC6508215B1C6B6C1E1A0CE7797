@@ -38,15 +38,13 @@ public class AuthService : IAuthService
         if (string.IsNullOrWhiteSpace(location))
             throw new ArgumentException("Vui lòng nhập địa điểm của bạn.", nameof(request.Location));
 
-        // use original email value for EF.Functions.ILike comparison (case-insensitive)
-        var emailToMatch = email;
-        // Protect against null Phone by normalizing safely
-        var phone = request.Phone?.Trim() ?? string.Empty;
+        var normalizedEmail = email.ToLowerInvariant();
+        var phone = request.Phone.Trim();
 
         try
         {
             var emailExists = await _context.Users
-                .AnyAsync(u => u.Email != null && EF.Functions.ILike(u.Email, emailToMatch));
+                .AnyAsync(u => u.Email != null && u.Email.ToLower() == normalizedEmail);
 
             if (emailExists)
                 throw new InvalidOperationException("Email đã tồn tại.");
@@ -61,27 +59,7 @@ public class AuthService : IAuthService
                     throw new InvalidOperationException("Số điện thoại đã được đăng ký.");
             }
 
-            // Ensure default 'active' status exists for User entity. Create if missing.
-            var status = await _context.Statuses
-                .FirstOrDefaultAsync(s => s.EntityType == "User" && s.Code == "active");
-
-            if (status == null)
-            {
-                status = new Status
-                {
-                    StatusId = Guid.NewGuid(),
-                    EntityType = "User",
-                    Code = "active",
-                    DisplayName = "Active",
-                    Description = "Default active status for new users",
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                _context.Statuses.Add(status);
-                await _context.SaveChangesAsync();
-            }
-
-            // Generate temporary6-digit numeric password
+            // Generate temporary 6-digit numeric password
             var tempPassword = GenerateSixDigitPassword();
             var hashed = PasswordHasher.HashPassword(tempPassword);
 
@@ -92,15 +70,14 @@ public class AuthService : IAuthService
                 PasswordHash = hashed,
                 FullName = fullName,
                 Phone = phone,
-                Role = "admin",
+                Role = "customer",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                // set foreign key to Status table (default active)
-                StatusId = status.StatusId,
-                Avatar = string.Empty,
+                Status = "",
+                Avatar = "",
                 Location = location,
-                TotalScore =0,
-                TotalExams =0
+                TotalScore = 0,
+                TotalExams = 0
             };
 
             _context.Users.Add(user);
@@ -112,18 +89,17 @@ public class AuthService : IAuthService
             return new RegisterResponse
             {
                 Email = user.Email,
-                FullName = user.FullName,
-                UserId = user.UserId
+                FullName = user.FullName
             };
         }
         catch (DbUpdateException dbEx)
         {
             var inner = dbEx.InnerException?.Message ?? string.Empty;
-            if (inner.IndexOf("duplicate", StringComparison.OrdinalIgnoreCase) >=0 ||
-                inner.IndexOf("unique", StringComparison.OrdinalIgnoreCase) >=0)
+            if (inner.IndexOf("duplicate", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                inner.IndexOf("unique", StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 // Try to determine whether duplicate is for email or phone
-                if (!string.IsNullOrWhiteSpace(phone) && inner.IndexOf("phone", StringComparison.OrdinalIgnoreCase) >=0)
+                if (!string.IsNullOrWhiteSpace(phone) && inner.IndexOf("phone", StringComparison.OrdinalIgnoreCase) >= 0)
                     throw new InvalidOperationException("Số điện thoại đã được đăng ký.", dbEx);
 
                 throw new InvalidOperationException("Email đã tồn tại.", dbEx);
@@ -135,11 +111,11 @@ public class AuthService : IAuthService
 
     private static string GenerateSixDigitPassword()
     {
-        // generate secure6-digit numeric string
+        // generate secure 6-digit numeric string
         var bytes = new byte[4];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(bytes);
-        var value = BitConverter.ToUInt32(bytes,0) %1000000;
+        var value = BitConverter.ToUInt32(bytes, 0) % 1000000;
         return value.ToString("D6");
     }
 
@@ -155,11 +131,10 @@ public class AuthService : IAuthService
         if (string.IsNullOrEmpty(password))
             throw new ArgumentException("Vui lòng nhập mật khẩu của bạn.", nameof(request.Password));
 
-        var emailToMatch = email;
+        var normalizedEmail = email.ToLowerInvariant();
 
         var user = await _context.Users
-            .Include(u => u.Status)
-            .FirstOrDefaultAsync(u => u.Email != null && EF.Functions.ILike(u.Email, emailToMatch));
+            .FirstOrDefaultAsync(u => u.Email != null && u.Email.ToLower() == normalizedEmail);
 
         if (user == null || !PasswordHasher.VerifyPassword(password, user.PasswordHash))
             throw new UnauthorizedAccessException("Thông tin đăng nhập không hợp lệ.");

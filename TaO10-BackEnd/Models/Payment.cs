@@ -19,7 +19,7 @@ public partial class Payment
 
     public string? TransactionCode { get; set; }
 
-    public string PaymentStatus { get; set; } = null!;
+    public Guid StatusId { get; set; }
 
     public DateTime? PaidAt { get; set; }
 
@@ -30,6 +30,8 @@ public partial class Payment
     public DateTime? UpdatedAt { get; set; }
 
     public virtual Package? Package { get; set; }
+
+    public virtual Status Status { get; set; } = null!;
 
     public virtual User? User { get; set; }
 

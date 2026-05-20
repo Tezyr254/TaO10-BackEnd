@@ -25,9 +25,7 @@ public partial class User
 
     public string Role { get; set; } = null!;
 
-    public bool? IsActive { get; set; }
-
-    public bool? IsDeleted { get; set; }
+    public Guid StatusId { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
@@ -44,6 +42,8 @@ public partial class User
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
+    public virtual Status Status { get; set; } = null!;
 
     public virtual ICollection<UserExamAttempt> UserExamAttempts { get; set; } = new List<UserExamAttempt>();
 

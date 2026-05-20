@@ -17,7 +17,7 @@ public partial class UserPackage
 
     public DateTime? EndDate { get; set; }
 
-    public bool? IsActive { get; set; }
+    public Guid StatusId { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
@@ -26,6 +26,8 @@ public partial class UserPackage
     public virtual Package? Package { get; set; }
 
     public virtual Payment? Payment { get; set; }
+
+    public virtual Status Status { get; set; } = null!;
 
     public virtual User? User { get; set; }
 }

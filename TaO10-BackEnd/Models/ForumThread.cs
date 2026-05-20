@@ -27,7 +27,7 @@ public partial class ForumThread
 
     public int? RepliesCount { get; set; }
 
-    public bool? IsDeleted { get; set; }
+    public Guid StatusId { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
@@ -36,6 +36,8 @@ public partial class ForumThread
     public virtual ForumCategory? ForumCategory { get; set; }
 
     public virtual ICollection<ForumReply> ForumReplies { get; set; } = new List<ForumReply>();
+
+    public virtual Status Status { get; set; } = null!;
 
     public virtual User? User { get; set; }
 }

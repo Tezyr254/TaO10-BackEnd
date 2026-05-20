@@ -23,9 +23,11 @@ public partial class UserExamAttempt
 
     public int? TimeSpentMinutes { get; set; }
 
-    public bool? IsCompleted { get; set; }
+    public Guid StatusId { get; set; }
 
     public virtual Exam? Exam { get; set; }
+
+    public virtual Status Status { get; set; } = null!;
 
     public virtual User? User { get; set; }
 

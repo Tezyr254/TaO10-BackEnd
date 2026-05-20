@@ -13,17 +13,13 @@ public partial class BlogPost
 
     public string? Meta { get; set; }
 
-    public string? ThumbClass { get; set; }
-
-    public string? ReadTime { get; set; }
-
     public int? ViewsCount { get; set; }
 
-    public bool? IsPublished { get; set; }
-
-    public bool? IsDeleted { get; set; }
+    public Guid StatusId { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? PublishedAt { get; set; }
+
+    public virtual Status Status { get; set; } = null!;
 }

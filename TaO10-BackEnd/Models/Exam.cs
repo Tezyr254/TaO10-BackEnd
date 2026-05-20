@@ -13,7 +13,7 @@ public partial class Exam
 
     public int? QuestionsCount { get; set; }
 
-    public int DurationMinutes { get; set; }
+    public int DurationTime { get; set; }
 
     public string? Level { get; set; }
 
@@ -25,9 +25,7 @@ public partial class Exam
 
     public int? AttemptsCount { get; set; }
 
-    public bool? IsActive { get; set; }
-
-    public bool? IsDeleted { get; set; }
+    public Guid StatusId { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
@@ -36,6 +34,8 @@ public partial class Exam
     public virtual ICollection<PackageExam> PackageExams { get; set; } = new List<PackageExam>();
 
     public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
+
+    public virtual Status Status { get; set; } = null!;
 
     public virtual ICollection<UserExamAttempt> UserExamAttempts { get; set; } = new List<UserExamAttempt>();
 }

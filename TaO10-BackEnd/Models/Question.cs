@@ -29,11 +29,13 @@ public partial class Question
 
     public decimal? Points { get; set; }
 
-    public bool? IsDeleted { get; set; }
+    public Guid StatusId { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
     public virtual Exam? Exam { get; set; }
+
+    public virtual Status Status { get; set; } = null!;
 
     public virtual ICollection<UserAnswer> UserAnswers { get; set; } = new List<UserAnswer>();
 }

@@ -61,25 +61,14 @@ public class AuthService : IAuthService
                     throw new InvalidOperationException("Số điện thoại đã được đăng ký.");
             }
 
-            // Ensure default 'active' status exists for User entity. Create if missing.
+            // Find default status for new users
             var status = await _context.Statuses
-                .FirstOrDefaultAsync(s => s.EntityType == "User" && s.Code == "active");
+                .FirstOrDefaultAsync(s => s.EntityType == "User" && s.Code == "active")
+                ?? await _context.Statuses.FirstOrDefaultAsync(s => s.EntityType == "User" && s.Code == "pending")
+                ?? await _context.Statuses.FirstOrDefaultAsync(s => s.EntityType == "User");
 
             if (status == null)
-            {
-                status = new Status
-                {
-                    StatusId = Guid.NewGuid(),
-                    EntityType = "User",
-                    Code = "active",
-                    DisplayName = "Active",
-                    Description = "Default active status for new users",
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                _context.Statuses.Add(status);
-                await _context.SaveChangesAsync();
-            }
+                throw new ApplicationException("Missing status configuration for User entity. Please ensure Status records exist.");
 
             // Generate temporary6-digit numeric password
             var tempPassword = GenerateSixDigitPassword();
@@ -92,10 +81,10 @@ public class AuthService : IAuthService
                 PasswordHash = hashed,
                 FullName = fullName,
                 Phone = phone,
-                Role = "admin",
+                Role = "customer",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                // set foreign key to Status table (default active)
+                // set foreign key to Status table
                 StatusId = status.StatusId,
                 Avatar = string.Empty,
                 Location = location,
