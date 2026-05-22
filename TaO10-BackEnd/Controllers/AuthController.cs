@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using TaO10_BackEnd.DTOs.Auth;
 using TaO10_BackEnd.Interfaces;
 
@@ -35,7 +35,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception)
         {
-            return StatusCode(500, new { message = "Internal server error" });
+            return StatusCode(500, new { message = "Lỗi hệ thống!" });
         }
     }
 
@@ -51,7 +51,7 @@ public class AuthController : ControllerBase
         }
         catch (UnauthorizedAccessException)
         {
-            return Unauthorized(new { message = "Invalid credentials" });
+            return Unauthorized(new { message = "Thông tin đăng nhập không hợp lệ!" });
         }
         catch (ArgumentException ex)
         {
@@ -59,7 +59,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception)
         {
-            return StatusCode(500, new { message = "Internal server error" });
+            return StatusCode(500, new { message = "Lỗi hệ thống!" });
         }
     }
 
@@ -75,11 +75,11 @@ public class AuthController : ControllerBase
         }
         catch (UnauthorizedAccessException)
         {
-            return Unauthorized(new { message = "Invalid refresh token" });
+            return Unauthorized(new { message = "refresh token không hợp lệ!" });
         }
         catch (Exception)
         {
-            return StatusCode(500, new { message = "Internal server error" });
+            return StatusCode(500, new { message = "Lỗi hệ thống!" });
         }
     }
 
@@ -95,11 +95,11 @@ public class AuthController : ControllerBase
         }
         catch (KeyNotFoundException)
         {
-            return NotFound(new { message = "Token not found" });
+            return NotFound(new { message = "Không tìm thấy Token" });
         }
         catch (Exception)
         {
-            return StatusCode(500, new { message = "Internal server error" });
+            return StatusCode(500, new { message = "Lỗi hệ thống!" });
         }
     }
 }

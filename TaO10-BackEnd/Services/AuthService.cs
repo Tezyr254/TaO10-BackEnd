@@ -92,7 +92,7 @@ public class AuthService : IAuthService
                 PasswordHash = hashed,
                 FullName = fullName,
                 Phone = phone,
-                Role = "admin",
+                Role = "customer",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 // set foreign key to Status table (default active)
