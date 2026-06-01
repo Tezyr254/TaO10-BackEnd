@@ -5,6 +5,9 @@ using Microsoft.IdentityModel.Tokens;
 using TaO10_BackEnd.Models;
 using TaO10_BackEnd.Interfaces;
 using TaO10_BackEnd.Services;
+using TaO10_BackEnd.Repositories;
+using TaO10_BackEnd.Mappers;
+using TaO10_BackEnd.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +43,20 @@ builder.Services.AddSingleton<JwtHelper>();
 ////DI services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+
+// Repository DI
+builder.Services.AddScoped<IStatusRepository, StatusRepository>();
+builder.Services.AddScoped<IExamRepository, ExamRepository>();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<IUserExamAttemptRepository, UserExamAttemptRepository>();
+builder.Services.AddScoped<IUserAnswerRepository, UserAnswerRepository>();
+
+// Mapper DI
+builder.Services.AddScoped<IExamMapper, ExamMapper>();
+
+// Service DI
+builder.Services.AddScoped<IExamService, ExamService>();
+builder.Services.AddScoped<IUserExamAttemptService, UserExamAttemptService>();
 
 // real-time
 builder.Services.AddSignalR();
@@ -80,6 +97,9 @@ app.UseHttpsRedirection();
 
 // Use CORS before authentication/authorization
 app.UseCors("AllowAll");
+
+// Global exception middleware
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseAuthentication(); 
 app.UseAuthorization();
