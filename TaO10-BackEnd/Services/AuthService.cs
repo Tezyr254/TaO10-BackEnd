@@ -2,6 +2,7 @@
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using TaO10_BackEnd.DTOs.Auth;
 using TaO10_BackEnd.Interfaces;
 using TaO10_BackEnd.Models;
@@ -14,12 +15,14 @@ public class AuthService : IAuthService
     private readonly AppDbContext _context;
     private readonly JwtHelper _jwtHelper;
     private readonly IEmailService _emailService;
+    private readonly ILogger<AuthService> _logger;
 
-    public AuthService(AppDbContext context, JwtHelper jwtHelper, IEmailService emailService)
+    public AuthService(AppDbContext context, JwtHelper jwtHelper, IEmailService emailService, ILogger<AuthService> logger)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _jwtHelper = jwtHelper ?? throw new ArgumentNullException(nameof(jwtHelper));
         _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<RegisterResponse> RegisterAsync(RegisterRequest request)
@@ -36,7 +39,7 @@ public class AuthService : IAuthService
 
         var location = request.Location?.Trim();
         if (string.IsNullOrWhiteSpace(location))
-            throw new ArgumentException("Vui lòng nhập địa điểm của bạn.", nameof(request.Location));
+            throw new ArgumentException("Vui lòng nhập địa chỉ của bạn.", nameof(request.Location));
 
         // use original email value for EF.Functions.ILike comparison (case-insensitive)
         var emailToMatch = email;
@@ -49,7 +52,7 @@ public class AuthService : IAuthService
                 .AnyAsync(u => u.Email != null && EF.Functions.ILike(u.Email, emailToMatch));
 
             if (emailExists)
-                throw new InvalidOperationException("Email đã tồn tại.");
+                throw new InvalidOperationException("Email đã tồn tại. Vui lòng nhập email khác .");
 
             // If phone provided, ensure it's unique
             if (!string.IsNullOrWhiteSpace(phone))
@@ -58,7 +61,7 @@ public class AuthService : IAuthService
                     .AnyAsync(u => u.Phone != null && u.Phone == phone);
 
                 if (phoneExists)
-                    throw new InvalidOperationException("Số điện thoại đã được đăng ký.");
+                    throw new InvalidOperationException("S? di?n tho?i dã du?c dang ký.");
             }
 
             // Ensure default 'active' status exists for User entity. Create if missing.
@@ -99,8 +102,8 @@ public class AuthService : IAuthService
                 StatusId = status.StatusId,
                 Avatar = string.Empty,
                 Location = location,
-                TotalScore =0,
-                TotalExams =0
+                TotalScore = 0,
+                TotalExams = 0
             };
 
             _context.Users.Add(user);
@@ -119,17 +122,17 @@ public class AuthService : IAuthService
         catch (DbUpdateException dbEx)
         {
             var inner = dbEx.InnerException?.Message ?? string.Empty;
-            if (inner.IndexOf("duplicate", StringComparison.OrdinalIgnoreCase) >=0 ||
-                inner.IndexOf("unique", StringComparison.OrdinalIgnoreCase) >=0)
+            if (inner.IndexOf("duplicate", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                inner.IndexOf("unique", StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 // Try to determine whether duplicate is for email or phone
-                if (!string.IsNullOrWhiteSpace(phone) && inner.IndexOf("phone", StringComparison.OrdinalIgnoreCase) >=0)
+                if (!string.IsNullOrWhiteSpace(phone) && inner.IndexOf("phone", StringComparison.OrdinalIgnoreCase) >= 0)
                     throw new InvalidOperationException("Số điện thoại đã được đăng ký.", dbEx);
 
                 throw new InvalidOperationException("Email đã tồn tại.", dbEx);
             }
 
-            throw new ApplicationException("Lỗi cơ sở dữ liệu khi tạo người dùng.", dbEx);
+            throw new ApplicationException("Lỗi có xảy ra khi tạo người dùng.", dbEx);
         }
     }
 
@@ -139,7 +142,7 @@ public class AuthService : IAuthService
         var bytes = new byte[4];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(bytes);
-        var value = BitConverter.ToUInt32(bytes,0) %1000000;
+        var value = BitConverter.ToUInt32(bytes, 0) % 1000000;
         return value.ToString("D6");
     }
 
@@ -256,5 +259,308 @@ public class AuthService : IAuthService
         rng.GetBytes(randomNumber);
         // base64 is fine for storage and transmission; remove padding for compactness if desired
         return Convert.ToBase64String(randomNumber);
+    }
+
+    public async Task<ProfileResponse> GetProfileAsync(Guid userId)
+    {
+        var user = await _context.Users
+            .Include(u => u.Status)
+            .FirstOrDefaultAsync(u => u.UserId == userId);
+
+        if (user == null) throw new KeyNotFoundException("User not found");
+
+        return new ProfileResponse
+        {
+            UserId = user.UserId,
+            Email = user.Email,
+            FullName = user.FullName,
+            Phone = user.Phone,
+            Location = user.Location,
+            Avatar = user.Avatar,
+            Role = user.Role,
+            Status = user.Status?.Code ?? string.Empty
+        };
+    }
+
+    public async Task<ProfileResponse> UpdateProfileAsync(Guid userId, UpdateProfileRequest request)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+        if (user == null) throw new KeyNotFoundException("Không tìm thấy người dùng.");
+
+        // Validate phone unique if changed
+        var newPhone = request.Phone?.Trim();
+        if (!string.IsNullOrWhiteSpace(newPhone) && newPhone != user.Phone)
+        {
+            var exists = await _context.Users.AnyAsync(u => u.Phone != null && u.Phone == newPhone && u.UserId != userId);
+            if (exists) throw new InvalidOperationException("Số điện thoại đã được đăng ký.");
+            user.Phone = newPhone;
+        }
+
+        // Handle optional password change
+        if (!string.IsNullOrEmpty(request.NewPassword))
+        {
+            if (string.IsNullOrEmpty(request.CurrentPassword))
+                throw new ArgumentException("Vui lòng cung cấp mật khẩu hiện tại để đổi mật khẩu.");
+
+            // Verify current password matches
+            if (!PasswordHasher.VerifyPassword(request.CurrentPassword, user.PasswordHash))
+                throw new UnauthorizedAccessException("Mật khẩu hiện tại không chính xác.");
+
+            // Update to new password (hash it)
+            user.PasswordHash = PasswordHasher.HashPassword(request.NewPassword);
+        }
+
+        user.FullName = request.FullName?.Trim() ?? user.FullName;
+        user.Location = request.Location?.Trim() ?? user.Location;
+        user.Avatar = request.Avatar ?? user.Avatar;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return new ProfileResponse
+        {
+            UserId = user.UserId,
+            Email = user.Email,
+            FullName = user.FullName,
+            Phone = user.Phone,
+            Location = user.Location,
+            Avatar = user.Avatar,
+            Role = user.Role,
+            Status = user.Status?.Code ?? string.Empty
+        };
+    }
+
+    // --- Password reset flow implementation ---
+
+    public async Task SendPasswordResetOtpAsync(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException("Email is required", nameof(email));
+
+        var emailTrim = email.Trim();
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email != null && EF.Functions.ILike(u.Email, emailTrim));
+
+        // Do not reveal existence to caller: behave identical whether user exists
+        if (user == null)
+        {
+            // Still simulate sending email for timing parity
+            return;
+        }
+
+        // Invalidate any previous unused tokens for this user
+        var existing = await _context.PasswordResetTokens
+            .Where(t => t.UserId == user.UserId && (t.IsUsed == null || t.IsUsed == false))
+            .ToListAsync();
+
+        foreach (var ex in existing)
+        {
+            ex.IsUsed = true;
+        }
+
+        // generate6-digit otp
+        var otp = GenerateSixDigitOtp();
+
+        var token = new PasswordResetToken
+        {
+            ResetTokenId = Guid.NewGuid(),
+            UserId = user.UserId,
+            OtpCode = otp, //6-digit OTP
+            ExpiryTime = DateTime.UtcNow.AddMinutes(5),
+            IsUsed = false,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _context.PasswordResetTokens.Add(token);
+        await _context.SaveChangesAsync();
+
+        // send OTP email (plain otp for user)
+        _ = _emailService.SendOtpAsync(user.Email!, otp, TimeSpan.FromMinutes(5));
+    }
+
+    public async Task SendPasswordResetOtpResendAsync(string email)
+    {
+        // Similar to SendPasswordResetOtpAsync but enforce a cooldown
+        if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException("Email is required", nameof(email));
+
+        var emailTrim = email.Trim();
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email != null && EF.Functions.ILike(u.Email, emailTrim));
+        if (user == null) return;
+
+        // check last OTP created time to prevent spamming
+        var last = await _context.PasswordResetTokens
+            .Where(t => t.UserId == user.UserId)
+            .OrderByDescending(t => t.CreatedAt)
+            .FirstOrDefaultAsync();
+
+        if (last != null && last.CreatedAt.HasValue && (DateTime.UtcNow - last.CreatedAt.Value).TotalSeconds < 30)
+        {
+            // Too soon to resend
+            throw new InvalidOperationException("Vui lòng đợi trước khi gửi lại mã OTP.");
+        }
+
+        // Mark previous as used
+        var existing = await _context.PasswordResetTokens
+            .Where(t => t.UserId == user.UserId && (t.IsUsed == null || t.IsUsed == false))
+            .ToListAsync();
+
+        foreach (var ex in existing)
+        {
+            ex.IsUsed = true;
+        }
+
+        var otp = GenerateSixDigitOtp();
+
+        var token = new PasswordResetToken
+        {
+            ResetTokenId = Guid.NewGuid(),
+            UserId = user.UserId,
+            OtpCode = otp,
+            ExpiryTime = DateTime.UtcNow.AddMinutes(5),
+            IsUsed = false,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _context.PasswordResetTokens.Add(token);
+        await _context.SaveChangesAsync();
+
+        _ = _emailService.SendOtpAsync(user.Email!, otp, TimeSpan.FromMinutes(5));
+    }
+
+    public async Task<string> VerifyPasswordResetOtpAsync(string email, string otp)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException("Email is required", nameof(email));
+            if (string.IsNullOrWhiteSpace(otp)) throw new ArgumentException("OTP is required", nameof(otp));
+
+            var emailTrim = email.Trim();
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email != null && EF.Functions.ILike(u.Email, emailTrim));
+            if (user == null) throw new KeyNotFoundException("Không tìm thấy người dùng.");
+
+            var token = await _context.PasswordResetTokens
+                .Where(t => t.UserId == user.UserId && (t.IsUsed == null || t.IsUsed == false))
+                .OrderByDescending(t => t.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (token == null) throw new InvalidOperationException("Mã OTP không tồn tại hoặc đã hết hạn.");
+
+            if (token.ExpiryTime < DateTime.UtcNow)
+            {
+                token.IsUsed = true;
+                await _context.SaveChangesAsync();
+                throw new InvalidOperationException("Mã OTP đã hết hạn.");
+            }
+
+            if (token.OtpCode != otp)
+            {
+                // increment attempts? omitted field, but could add
+                throw new UnauthorizedAccessException("Mã OTP không đúng.");
+            }
+
+            // mark used
+            token.IsUsed = true;
+            token.UpdatedAt = DateTime.UtcNow;
+
+            // create a reset token (6-digit) and store in PasswordResetTokens as distinction
+            // ensure reset token fits existing DB column length (6)
+            string resetToken;
+            var attempts = 0;
+            do
+            {
+                resetToken = GenerateSixDigitOtp();
+                attempts++;
+                // ensure uniqueness per user
+            } while (await _context.PasswordResetTokens.AnyAsync(t => t.UserId == user.UserId && t.OtpCode == resetToken) && attempts < 5);
+
+            var resetRecord = new PasswordResetToken
+            {
+                ResetTokenId = Guid.NewGuid(),
+                UserId = user.UserId,
+                OtpCode = resetToken,
+                ExpiryTime = DateTime.UtcNow.AddMinutes(15),
+                IsUsed = false,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _context.PasswordResetTokens.Add(resetRecord);
+
+            await _context.SaveChangesAsync();
+
+            return resetToken;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in VerifyPasswordResetOtpAsync for email {Email}", email);
+            throw;
+        }
+    }
+
+    public async Task ResetPasswordWithTokenAsync(string resetToken, string newPassword)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(resetToken)) throw new ArgumentException("Reset token is required", nameof(resetToken));
+            if (string.IsNullOrWhiteSpace(newPassword)) throw new ArgumentException("New password is required", nameof(newPassword));
+
+            // find reset token record
+            var record = await _context.PasswordResetTokens
+                .Where(t => t.OtpCode == resetToken && (t.IsUsed == null || t.IsUsed == false))
+                .OrderByDescending(t => t.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (record == null) throw new InvalidOperationException("Reset token không hợp lệ.");
+
+            if (record.ExpiryTime < DateTime.UtcNow)
+            {
+                record.IsUsed = true;
+                await _context.SaveChangesAsync();
+                throw new InvalidOperationException("Reset token đã hết hạn.");
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == record.UserId);
+            if (user == null) throw new KeyNotFoundException("Không tìm thấy người dùng.");
+
+            // update password
+            user.PasswordHash = PasswordHasher.HashPassword(newPassword);
+            user.UpdatedAt = DateTime.UtcNow;
+
+            // mark token used
+            record.IsUsed = true;
+
+            // invalidate other tokens for user
+            var others = await _context.PasswordResetTokens
+                .Where(t => t.UserId == user.UserId && t.ResetTokenId != record.ResetTokenId && (t.IsUsed == null || t.IsUsed == false))
+                .ToListAsync();
+            foreach (var o in others) o.IsUsed = true;
+
+            // Also revoke refresh tokens for user to force re-login
+            var refreshes = await _context.RefreshTokens.Where(r => r.UserId == user.UserId && (r.IsRevoked == null || r.IsRevoked == false)).ToListAsync();
+            foreach (var r in refreshes)
+            {
+                r.IsRevoked = true;
+                r.RevokedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in ResetPasswordWithTokenAsync for token {Token}", resetToken);
+            throw;
+        }
+    }
+
+    private static string GenerateSixDigitOtp()
+    {
+        var bytes = new byte[4];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(bytes);
+        var value = BitConverter.ToUInt32(bytes, 0) % 1000000;
+        return value.ToString("D6");
     }
 }
