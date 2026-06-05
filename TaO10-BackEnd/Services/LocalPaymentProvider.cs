@@ -1,0 +1,52 @@
+using System;
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Threading.Tasks;
+using TaO10_BackEnd.Interfaces;
+
+namespace TaO10_BackEnd.Services
+{
+    public class LocalPaymentProvider : IPaymentProvider
+    {
+        private readonly string _frontendBase;
+
+        public LocalPaymentProvider(Microsoft.Extensions.Configuration.IConfiguration config)
+        {
+            _frontendBase = config["Frontend:BaseUrl"] ?? "http://localhost:4200";
+        }
+
+        public Task<CreatePaymentResult> CreatePaymentLinkAsync(long orderCode, int amount, string description, List<PaymentItem> items, string cancelUrl, string returnUrl)
+        {
+            // Create a simple fake checkout URL that the frontend can use during development.
+            var checkoutUrl = $"{_frontendBase}/fake-checkout?order={orderCode}&amount={amount}";
+            var qr = $"{_frontendBase}/api/payments/qr/{orderCode}"; // placeholder
+            var result = new CreatePaymentResult(checkoutUrl, qr);
+            return Task.FromResult(result);
+        }
+
+        public Task<WebhookResult?> VerifyWebhookAsync(JsonElement webhookBody)
+        {
+            try
+            {
+                // Accept simple JSON shapes for dev: { "code": "00", "orderCode":12345, "amount":100 }
+                if (webhookBody.TryGetProperty("code", out var codeEl) &&
+                (webhookBody.TryGetProperty("orderCode", out var orderEl) || webhookBody.TryGetProperty("order_code", out orderEl)) &&
+                (webhookBody.TryGetProperty("amount", out var amountEl) || webhookBody.TryGetProperty("total", out amountEl)))
+                {
+                    var code = codeEl.GetString() ?? string.Empty;
+                    var orderCode = orderEl.ValueKind == JsonValueKind.Number ? orderEl.GetInt64() : long.Parse(orderEl.GetString() ?? "0");
+                    var amount = amountEl.ValueKind == JsonValueKind.Number ? amountEl.GetInt32() : int.Parse(amountEl.GetString() ?? "0");
+
+                    var res = new WebhookResult(code, orderCode, amount);
+                    return Task.FromResult<WebhookResult?>(res);
+                }
+
+                return Task.FromResult<WebhookResult?>(null);
+            }
+            catch
+            {
+                return Task.FromResult<WebhookResult?>(null);
+            }
+        }
+    }
+}
