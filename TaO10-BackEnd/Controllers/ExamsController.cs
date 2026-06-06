@@ -78,18 +78,19 @@ namespace TaO10_BackEnd.Controllers
                     var activeUserPkgStatus = await _context.Statuses
                         .FirstOrDefaultAsync(s => s.EntityType == "UserPackage" && s.Code == "ACTIVE");
 
-                    var activeUserPackage = await _context.UserPackages
+                    var activeUserPackages = await _context.UserPackages
                         .Where(up => up.UserId == userId.Value && 
                                      up.StatusId == (activeUserPkgStatus != null ? activeUserPkgStatus.StatusId : Guid.Empty) &&
-                                     (up.EndDate == null || up.EndDate >= DateTime.UtcNow))
-                        .OrderByDescending(up => up.EndDate)
-                        .FirstOrDefaultAsync();
+                                     (up.EndDate == null || up.EndDate >= DateTime.UtcNow) &&
+                                     up.PackageId != null)
+                        .Select(up => up.PackageId ?? Guid.Empty)
+                        .ToListAsync();
 
-                    if (activeUserPackage != null)
+                    if (activeUserPackages.Any())
                     {
                         hasActivePackage = true;
                         unlockedExamIds = await _context.PackageExams
-                            .Where(pe => pe.PackageId == activeUserPackage.PackageId)
+                            .Where(pe => activeUserPackages.Contains(pe.PackageId))
                             .Select(pe => pe.ExamId)
                             .ToListAsync();
                     }
