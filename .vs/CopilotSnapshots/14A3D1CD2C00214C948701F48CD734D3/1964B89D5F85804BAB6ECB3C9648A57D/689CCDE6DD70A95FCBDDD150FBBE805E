@@ -1,0 +1,22 @@
+﻿using TaO10_BackEnd.DTOs.Auth;
+
+namespace TaO10_BackEnd.Interfaces
+{
+    public interface IAuthService
+    {
+        Task<RegisterResponse> RegisterAsync(RegisterRequest request);
+        Task<TokenResponse> LoginAsync(LoginRequest request);
+        Task<TokenResponse> RefreshTokenAsync(string refreshToken);
+        Task RevokeTokenAsync(string refreshToken);
+
+        // profile
+        Task<ProfileResponse> GetProfileAsync(Guid userId);
+        Task<ProfileResponse> UpdateProfileAsync(Guid userId, UpdateProfileRequest request);
+
+        // password reset / forgot password flow
+        Task SendPasswordResetOtpAsync(string email);
+        Task SendPasswordResetOtpResendAsync(string email);
+        Task<string> VerifyPasswordResetOtpAsync(string email, string otp);
+        Task ResetPasswordWithTokenAsync(string resetToken, string newPassword);
+    }
+}
