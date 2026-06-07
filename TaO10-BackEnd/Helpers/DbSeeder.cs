@@ -62,40 +62,7 @@ namespace TaO10_BackEnd.Helpers
             var activeThreadStatusId = (await context.Statuses.FirstAsync(s => s.EntityType == "ForumThread" && s.Code == "ACTIVE")).StatusId;
             var publishedBlogStatusId = (await context.Statuses.FirstAsync(s => s.EntityType == "BlogPost" && s.Code == "PUBLISHED")).StatusId;
 
-            // 2. SEED USERS
-            if (!await context.Users.AnyAsync())
-            {
-                var adminUser = new User
-                {
-                    UserId = Guid.NewGuid(),
-                    Email = "admin@tao10.vn",
-                    FullName = "Quản trị viên TaO10",
-                    PasswordHash = PasswordHasher.HashPassword("Password123"),
-                    Role = "admin",
-                    StatusId = activeUserStatusId,
-                    TotalExams = 0,
-                    TotalScore = 0,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-
-                var testStudent = new User
-                {
-                    UserId = Guid.NewGuid(),
-                    Email = "student@tao10.vn",
-                    FullName = "Nguyễn Văn Học Sinh",
-                    PasswordHash = PasswordHasher.HashPassword("Password123"),
-                    Role = "student",
-                    StatusId = activeUserStatusId,
-                    TotalExams = 0,
-                    TotalScore = 0,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-
-                await context.Users.AddRangeAsync(adminUser, testStudent);
-                await context.SaveChangesAsync();
-            }
+          
 
             // 3. SEED PACKAGES (Basic, Pro, Premium)
             if (!await context.Packages.AnyAsync())
