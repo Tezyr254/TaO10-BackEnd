@@ -73,6 +73,7 @@ public class UserExamAttemptRepository : Repository<UserExamAttempt>, IUserExamA
         return await _dbSet
             .Include(ua => ua.Status)
             .Include(ua => ua.Exam)
+                .ThenInclude(e => e!.Questions)
             .Include(ua => ua.UserAnswers)
                 .ThenInclude(ua => ua.Question)
             .FirstOrDefaultAsync(ua => ua.UserExamAttemptId == attemptId);

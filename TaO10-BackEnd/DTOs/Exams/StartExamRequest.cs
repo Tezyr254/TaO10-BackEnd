@@ -14,8 +14,7 @@ public class StartExamRequest
     public Guid ExamId { get; set; }
 
     /// <summary>
-    /// The ID of the user starting the exam
+    /// The ID of the user starting the exam. Optional for guest attempts.
     /// </summary>
-    [Required(ErrorMessage = "UserId is required")]
-    public Guid UserId { get; set; }
+    public Guid? UserId { get; set; }
 }

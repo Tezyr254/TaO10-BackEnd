@@ -1,3 +1,4 @@
+using TaO10_BackEnd.Common;
 using TaO10_BackEnd.DTOs.Exams;
 using TaO10_BackEnd.Models;
 
@@ -128,14 +129,14 @@ public class ExamMapper : IExamMapper
         // Include questions if requested and not showing answers yet (avoid showing correct answers during exam)
         if (includeQuestions && attempt.Exam?.Questions != null)
         {
-            bool isCompleted = attempt.Status?.Code == "completed";
+            bool isCompleted = IsAttemptCompleted(attempt);
             dto.Questions = MapToQuestionDtoList(attempt.Exam.Questions, includeCorrectAnswer: isCompleted);
         }
 
         // Include answers if requested
         if (includeAnswers && attempt.UserAnswers != null)
         {
-            bool isCompleted = attempt.Status?.Code == "completed";
+            bool isCompleted = IsAttemptCompleted(attempt);
             dto.UserAnswers = attempt.UserAnswers.Select(ua => new UserAnswerDto
             {
                 UserAnswerId = ua.UserAnswerId,
@@ -198,6 +199,12 @@ public class ExamMapper : IExamMapper
             TotalQuestions = 0,
             TimeSpentMinutes = 0
         };
+    }
+
+    private static bool IsAttemptCompleted(UserExamAttempt attempt)
+    {
+        var code = attempt.Status?.Code;
+        return string.Equals(code, AppStatusCodes.Attempts.Submitted, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

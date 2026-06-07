@@ -1,3 +1,4 @@
+using TaO10_BackEnd.Common;
 using TaO10_BackEnd.DTOs.Exams;
 using TaO10_BackEnd.Exceptions;
 using TaO10_BackEnd.Mappers;
@@ -45,10 +46,11 @@ public class ExamService : IExamService
             throw new ResourceNotFoundException($"Exam with ID {examId} not found", "EXAM_NOT_FOUND");
         }
 
-        // Check if exam is active
-        if (exam.Status?.Code != "active")
+        // Check if exam is published
+        if (exam.Status?.EntityType != AppStatusCodes.EntityTypes.Exam ||
+            exam.Status?.Code != AppStatusCodes.Exams.Published)
         {
-            _logger.LogWarning("Exam is not active. ID: {ExamId}, Status: {StatusCode}", examId, exam.Status?.Code);
+            _logger.LogWarning("Exam is not published. ID: {ExamId}, Status: {StatusCode}", examId, exam.Status?.Code);
             throw new ExamAccessDeniedException("Exam is not available", "EXAM_NOT_ACTIVE");
         }
 
@@ -87,10 +89,11 @@ public class ExamService : IExamService
             throw new ResourceNotFoundException($"Exam with ID {examId} not found", "EXAM_NOT_FOUND");
         }
 
-        // Check if exam is active
-        if (exam.Status?.Code != "active")
+        // Check if exam is published
+        if (exam.Status?.EntityType != AppStatusCodes.EntityTypes.Exam ||
+            exam.Status?.Code != AppStatusCodes.Exams.Published)
         {
-            _logger.LogWarning("Exam is not active. ID: {ExamId}, Status: {StatusCode}", examId, exam.Status?.Code);
+            _logger.LogWarning("Exam is not published. ID: {ExamId}, Status: {StatusCode}", examId, exam.Status?.Code);
             throw new ExamAccessDeniedException("Exam is not available", "EXAM_NOT_ACTIVE");
         }
 

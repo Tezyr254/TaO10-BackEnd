@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TaO10_BackEnd.Common;
 using TaO10_BackEnd.Models;
 
 namespace TaO10_BackEnd.Repositories;
@@ -20,7 +21,9 @@ public class ExamRepository : Repository<Exam>, IExamRepository
     {
         return await _dbSet
             .Include(e => e.Status)
-            .Include(e => e.Questions.Where(q => q.Status.Code == "active"))
+            .Include(e => e.Questions.Where(q =>
+                q.Status.EntityType == AppStatusCodes.EntityTypes.Question &&
+                q.Status.Code == AppStatusCodes.Questions.Active))
             .FirstOrDefaultAsync(e => e.ExamId == examId);
     }
 
@@ -31,7 +34,9 @@ public class ExamRepository : Repository<Exam>, IExamRepository
     {
         var query = _dbSet
             .Include(e => e.Status)
-            .Where(e => e.Status.Code == "active")
+            .Where(e =>
+                e.Status.EntityType == AppStatusCodes.EntityTypes.Exam &&
+                e.Status.Code == AppStatusCodes.Exams.Published)
             .OrderByDescending(e => e.CreatedAt);
 
         int totalCount = await query.CountAsync();
