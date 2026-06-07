@@ -339,7 +339,7 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValue(false)
                 .HasColumnName("is_used");
             entity.Property(e => e.OtpCode)
-                .HasMaxLength(6)
+                .HasMaxLength(500)
                 .HasColumnName("otp_code");
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")

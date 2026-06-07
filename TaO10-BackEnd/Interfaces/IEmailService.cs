@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 
 namespace TaO10_BackEnd.Interfaces;
@@ -5,4 +6,5 @@ namespace TaO10_BackEnd.Interfaces;
 public interface IEmailService
 {
     Task SendPasswordAsync(string toEmail, string temporaryPassword);
+    Task SendOtpAsync(string toEmail, string otp, TimeSpan ttl);
 }

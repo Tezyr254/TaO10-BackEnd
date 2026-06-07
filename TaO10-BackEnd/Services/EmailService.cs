@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MailKit.Net.Smtp;
@@ -20,6 +21,20 @@ public class EmailService : IEmailService
     }
 
     public async Task SendPasswordAsync(string toEmail, string temporaryPassword)
+    {
+        var subject = "TaO10 - Chúc mừng bạn đã đăng kí tài khoản thành công!";
+        var body = $"Xin chào,\n\nMật khẩu đăng nhập tạm thời của bạn là: {temporaryPassword}\nVui lòng đăng nhập và đổi mật khẩu ngay.\n\nNếu bạn không yêu cầu mật khẩu này, hãy bỏ qua email này.";
+        await SendEmailInternalAsync(toEmail, subject, body);
+    }
+
+    public async Task SendOtpAsync(string toEmail, string otp, TimeSpan ttl)
+    {
+        var subject = "TaO10 - Mã OTP để lấy lại mật khẩu";
+        var body = $"Xin chào,\n\nMã OTP của bạn là: {otp}\nMã có hiệu lực trong {ttl.TotalMinutes:F0} phút.\n\nNếu bạn không yêu cầu mã này, hãy bỏ qua email này.";
+        await SendEmailInternalAsync(toEmail, subject, body);
+    }
+
+    private async Task SendEmailInternalAsync(string toEmail, string subject, string body)
     {
         var server = _config["SmtpSettings:Server"];
         var portString = _config["SmtpSettings:Port"];
@@ -49,10 +64,10 @@ public class EmailService : IEmailService
             return;
         }
 
-        message.Subject = "TaO10 - Mật khẩu tạm thời";
+        message.Subject = subject;
 
         var bodyBuilder = new BodyBuilder();
-        bodyBuilder.TextBody = $"Xin chào,\n\nMật khẩu đăng nhập tạm thời của bạn là: {temporaryPassword}\nVui lòng đăng nhập và đổi mật khẩu ngay.\n\nNếu bạn không yêu cầu mật khẩu này, hãy bỏ qua email này.";
+        bodyBuilder.TextBody = body;
         message.Body = bodyBuilder.ToMessageBody();
 
         using var client = new SmtpClient();
@@ -71,12 +86,12 @@ public class EmailService : IEmailService
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
 
-            _logger.LogInformation("Temporary password email sent to {Email}", toEmail);
+            _logger.LogInformation("Email '{Subject}' sent to {Email}", subject, toEmail);
         }
         catch (System.Exception ex)
         {
             _logger.LogError(ex, "Failed to send email to {Email}", toEmail);
-            // swallow or rethrow depending on desired behavior; we swallow to not block registration
+            // swallow or rethrow depending on desired behavior; we swallow to not block flow
         }
     }
 }
