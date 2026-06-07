@@ -53,19 +53,14 @@ public partial class AppDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (optionsBuilder.IsConfigured)
-        {
-            return;
-        }
-
         var builder = new ConfigurationBuilder();
         builder.SetBasePath(Directory.GetCurrentDirectory());
-        builder.AddJsonFile("appsettings.json", true, true);
         builder.AddJsonFile("appsettings.Development.json", true, true);
         var configuration = builder.Build();
         optionsBuilder.UseNpgsql(configuration.GetConnectionString("MyCnn"));
 
     }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

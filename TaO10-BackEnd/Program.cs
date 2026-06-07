@@ -1,13 +1,14 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using TaO10_BackEnd.Models;
+using System.Text;
 using TaO10_BackEnd.Interfaces;
-using TaO10_BackEnd.Services;
-using TaO10_BackEnd.Repositories;
 using TaO10_BackEnd.Mappers;
 using TaO10_BackEnd.Middleware;
+using TaO10_BackEnd.Models;
+using TaO10_BackEnd.Repositories;
+using TaO10_BackEnd.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,6 +59,19 @@ builder.Services.AddScoped<IExamMapper, ExamMapper>();
 builder.Services.AddScoped<IExamService, ExamService>();
 builder.Services.AddScoped<IUserExamAttemptService, UserExamAttemptService>();
 
+// Configure PayOS
+var payOsConfig = builder.Configuration.GetSection("PayOS");
+PayOS.PayOSClient payOS = new PayOS.PayOSClient(
+    payOsConfig["ClientId"] ?? "",
+    payOsConfig["ApiKey"] ?? "",
+    payOsConfig["ChecksumKey"] ?? ""
+);
+builder.Services.AddSingleton(payOS);
+
+// Register payment provider abstraction
+builder.Services.AddSingleton<IPaymentProvider, PayOSPaymentProvider>();
+
+
 // real-time
 builder.Services.AddSignalR();
 
@@ -83,9 +97,39 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
         ValidateIssuerSigningKey = true
     };
+
+options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+{
+    OnMessageReceived = context =>
+    {
+        var accessToken = context.Request.Query["access_token"];
+        var path = context.Request.Path;
+        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+        {
+            context.Token = accessToken;
+        }
+        return Task.CompletedTask;
+    }
+};
 });
 
 var app = builder.Build();
+
+// Seed data
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        await TaO10_BackEnd.Helpers.DbSeeder.SeedAsync(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database.");
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {
@@ -93,7 +137,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 // Use CORS before authentication/authorization
 app.UseCors("AllowAll");
@@ -105,5 +152,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<TaO10_BackEnd.Hubs.NotificationHub>("/hubs/notification");
 
 app.Run();
