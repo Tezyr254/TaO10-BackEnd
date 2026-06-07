@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TaO10_BackEnd.DTOs.Exam;
+using TaO10_BackEnd.DTOs.Exams;
 using TaO10_BackEnd.DTOs.Package;
 using TaO10_BackEnd.Models;
 
@@ -95,7 +95,7 @@ namespace TaO10_BackEnd.Controllers
 
             var exams = package.PackageExams
                 .Where(pe => pe.Exam != null)
-                .Select(pe => new ExamResponse
+                .Select(pe => new ExamDto
                 {
                     ExamId = pe.Exam.ExamId,
                     Title = pe.Exam.Title,
@@ -107,7 +107,7 @@ namespace TaO10_BackEnd.Controllers
                     ExamType = pe.Exam.ExamType,
                     ViewsCount = pe.Exam.ViewsCount ?? 0,
                     AttemptsCount = pe.Exam.AttemptsCount ?? 0,
-                    Status = pe.Exam.Status?.DisplayName ?? "Active",
+                    StatusCode = pe.Exam.Status?.DisplayName ?? "Active",
                     IsPremium = true,
                     ProgressPercentage = userProgress.ContainsKey(pe.Exam.ExamId) ? userProgress[pe.Exam.ExamId] : 0,
                     CreatedAt = pe.Exam.CreatedAt

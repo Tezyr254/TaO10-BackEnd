@@ -69,4 +69,6 @@ public class ExamDto
     /// Last update timestamp
     /// </summary>
     public DateTime? UpdatedAt { get; set; }
+    public bool IsPremium { get;  set; }
+    public int? ProgressPercentage { get;  set; }
 }

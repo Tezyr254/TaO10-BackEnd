@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using TaO10_BackEnd.DTOs.Exams;
 
 namespace TaO10_BackEnd.DTOs.Payment
 {
@@ -34,5 +36,16 @@ namespace TaO10_BackEnd.DTOs.Payment
     {
         public string UserEmail { get; set; } = null!;
         public string UserFullName { get; set; } = null!;
+    }
+
+    public class PaymentPackageDetailResponse
+    {
+        public Guid PackageId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public int Price { get; set; }
+        public int? DurationTime { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public List<ExamDto> Exams { get; set; } = new();
     }
 }
