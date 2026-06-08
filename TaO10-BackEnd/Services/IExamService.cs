@@ -20,5 +20,5 @@ public interface IExamService
     /// <summary>
     /// Gets an exam with all questions (without correct answers)
     /// </summary>
-    Task<ExamResponseDto> GetExamWithQuestionsAsync(Guid examId);
+    Task<ExamResponseDto> GetExamWithQuestionsAsync(Guid examId, Guid? userId = null);
 }

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using TaO10_BackEnd.DTOs.Exams;
 
-namespace TaO10_BackEnd.DTOs.Payment
+namespace TaO10_BackEnd.DTOs.Package
 {
     public class CheckoutRequest
     {

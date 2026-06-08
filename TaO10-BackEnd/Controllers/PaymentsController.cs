@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using TaO10_BackEnd.DTOs.Payment;
 using TaO10_BackEnd.Hubs;
 using TaO10_BackEnd.Models;
 using Microsoft.Extensions.Logging;
 using TaO10_BackEnd.Interfaces;
+using TaO10_BackEnd.DTOs.Package;
 
 namespace TaO10_BackEnd.Controllers
 {
