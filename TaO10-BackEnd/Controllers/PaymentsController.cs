@@ -123,10 +123,14 @@ namespace TaO10_BackEnd.Controllers
                     return BadRequest("Invalid webhook");
                 }
 
+                _logger.LogInformation("Webhook received: Code={Code}, OrderCode={OrderCode}, Amount={Amount}",
+                    verified.Code, verified.OrderCode, verified.Amount);
+
                 // only process success
                 if (verified.Code == "00")
                 {
                     var txCode = verified.OrderCode.ToString();
+                    _logger.LogInformation("Processing successful payment for transaction: {TxCode}", txCode);
 
                     var payment = await _context.Payments
                     .Include(p => p.Package)
@@ -159,7 +163,6 @@ namespace TaO10_BackEnd.Controllers
                     if (verified.Amount != payment.ExpectedAmount)
                     {
                         _logger.LogWarning("Webhook amount {Amount} does not match expected {Expected} for payment {PaymentId}", verified.Amount, payment.ExpectedAmount, payment.PaymentId);
-                        // business decision: continue or flag for review
                     }
 
                     using var tx = await _context.Database.BeginTransactionAsync();
@@ -202,6 +205,9 @@ namespace TaO10_BackEnd.Controllers
                         await _context.SaveChangesAsync();
                         await tx.CommitAsync();
 
+                        _logger.LogInformation("Payment {PaymentId} processed successfully. UserPackage {UserPackageId} created for User {UserId}",
+                            payment.PaymentId, userPackage.UserPackageId, payment.UserId);
+
                         if (payment.UserId.HasValue)
                         {
                             var userIdStr = payment.UserId.Value.ToString();
@@ -215,6 +221,10 @@ namespace TaO10_BackEnd.Controllers
                         _logger.LogError(ex, "Failed to process webhook for payment {PaymentId}", payment.PaymentId);
                         return StatusCode(500, "Failed to process webhook");
                     }
+                }
+                else
+                {
+                    _logger.LogInformation("Webhook received with non-success code: {Code}", verified.Code);
                 }
 
                 return Ok(new { message = "Webhook received successfully" });
