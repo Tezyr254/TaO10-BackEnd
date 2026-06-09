@@ -94,7 +94,7 @@ namespace TaO10_BackEnd.Controllers
                 .ToDictionaryAsync(up => up.ItemId ?? Guid.Empty, up => up.ProgressPercentage ?? 0);
 
             var exams = package.PackageExams
-                .Where(pe => pe.Exam != null && pe.Exam.Status?.Code == "PUBLISHED")
+                .Where(pe => pe.Exam != null && pe.Exam.Status?.Code == "ACTIVE")
                 .Select(pe => new ExamDto
                 {
                     ExamId = pe.Exam.ExamId,
