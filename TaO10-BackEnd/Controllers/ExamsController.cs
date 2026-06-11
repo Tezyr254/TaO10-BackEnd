@@ -104,19 +104,14 @@ public class ExamsController : ControllerBase
     /// </summary>
     /// <param name="id">Exam ID</param>
     /// <returns>Exam with questions</returns>
-    [Microsoft.AspNetCore.Authorization.Authorize]
     [HttpGet("{id}/with-questions")]
     public async Task<IActionResult> GetExamWithQuestions(Guid id)
     {
         try
         {
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
-            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
-                return Unauthorized();
+            _logger.LogInformation("GetExamWithQuestions called with ID: {ExamId}", id);
 
-            _logger.LogInformation("GetExamWithQuestions called with ID: {ExamId} by User: {UserId}", id, userId);
-
-            var exam = await _examService.GetExamWithQuestionsAsync(id, userId);
+            var exam = await _examService.GetExamWithQuestionsAsync(id);
             return Ok(ApiResponse<ExamResponseDto>.SuccessResponse(exam, "Exam with questions retrieved successfully", 200));
         }
         catch (ResourceNotFoundException ex)

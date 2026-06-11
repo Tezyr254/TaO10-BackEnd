@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TaO10_BackEnd.Common;
 using TaO10_BackEnd.Models;
 
 namespace TaO10_BackEnd.Repositories;
@@ -41,6 +42,7 @@ public class UserExamAttemptRepository : Repository<UserExamAttempt>, IUserExamA
         return await _dbSet
             .Include(ua => ua.Status)
             .Include(ua => ua.Exam)
+                .ThenInclude(e => e!.Questions)
             .Include(ua => ua.UserAnswers)
             .FirstOrDefaultAsync(ua => ua.UserExamAttemptId == attemptId);
     }
@@ -52,7 +54,7 @@ public class UserExamAttemptRepository : Repository<UserExamAttempt>, IUserExamA
     {
         return await _dbSet
             .Include(ua => ua.Status)
-            .AnyAsync(ua => ua.UserExamAttemptId == attemptId && ua.Status.Code == "in_progress");
+            .AnyAsync(ua => ua.UserExamAttemptId == attemptId && ua.Status.Code == AppStatusCodes.Attempts.InProgress);
     }
 
     /// <summary>
