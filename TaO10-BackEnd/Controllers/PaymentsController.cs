@@ -109,6 +109,80 @@ namespace TaO10_BackEnd.Controllers
             }
         }
 
+        // GET: api/Payments/verify-return
+        [Authorize]
+        [HttpGet("verify-return")]
+        public async Task<IActionResult> VerifyReturn([FromQuery] string orderCode)
+        {
+            if (string.IsNullOrEmpty(orderCode)) return BadRequest("Missing orderCode");
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+                return Unauthorized();
+
+            var payment = await _context.Payments
+                .Include(p => p.Package)
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.TransactionCode == orderCode && p.UserId == userId);
+
+            if (payment == null) return NotFound("Payment not found");
+
+            var successStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.EntityType == "Payment" && s.Code == "SUCCESS");
+            var activeUserPkgStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.EntityType == "UserPackage" && s.Code == "ACTIVE");
+
+            if (payment.StatusId == successStatus.StatusId) return Ok(new { message = "Already processed" });
+
+            // Just process it manually for the sake of simple logic locally
+            using var tx = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                payment.StatusId = successStatus.StatusId;
+                payment.ReceivedAmount = payment.ExpectedAmount;
+                payment.PaidAt = DateTime.UtcNow;
+                payment.UpdatedAt = DateTime.UtcNow;
+
+                var duration = payment.Package?.DurationTime ?? 30;
+                var start = DateTime.UtcNow;
+                var end = start.AddDays(duration);
+
+                var userPackage = new UserPackage
+                {
+                    UserPackageId = Guid.NewGuid(),
+                    UserId = payment.UserId,
+                    PackageId = payment.PackageId,
+                    PaymentId = payment.PaymentId,
+                    StartDate = start,
+                    EndDate = end,
+                    StatusId = activeUserPkgStatus.StatusId,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                _context.UserPackages.Add(userPackage);
+
+                var notification = new Notification
+                {
+                    NotificationId = Guid.NewGuid(),
+                    UserId = payment.UserId ?? Guid.Empty,
+                    Title = "Mua gói thành công!",
+                    Content = $"Gói {payment.Package?.Name} của bạn đã được kích hoạt thành công. Hạn dùng đến ngày {end.ToString("dd/MM/yyyy")}.",
+                    IsRead = false,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Notifications.Add(notification);
+
+                await _context.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                return Ok(new { message = "Processed successfully" });
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                _logger.LogError(ex, "Failed to verify return for payment {PaymentId}", payment.PaymentId);
+                return StatusCode(500, "Failed to process return");
+            }
+        }
+
         // POST: api/Payments/webhook (Payment provider IPN endpoint)
         [AllowAnonymous]
         [HttpPost("webhook")]
