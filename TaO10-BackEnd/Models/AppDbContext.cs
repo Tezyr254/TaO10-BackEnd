@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -55,7 +55,8 @@ public partial class AppDbContext : DbContext
     {
         var builder = new ConfigurationBuilder();
         builder.SetBasePath(Directory.GetCurrentDirectory());
-        builder.AddJsonFile("appsettings.Development.json", true, true);
+        builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+        //builder.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
         var configuration = builder.Build();
         optionsBuilder.UseNpgsql(configuration.GetConnectionString("MyCnn"));
 
