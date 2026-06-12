@@ -14,7 +14,7 @@ from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
 EXAM_DIR = Path(r"c:\Users\tungd\Downloads\10 đề thi vào 10")
-OUTPUT_FILE = Path(r"D:\TaO10-BackEnd\data\import_10_de_thi_vao_10_v2.xlsx")
+OUTPUT_FILE = Path(r"D:\TaO10-BackEnd\data\import_10_de_thi_vao_10.xlsx")
 
 W_NS = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 
@@ -48,11 +48,11 @@ SECTION_PATTERNS = [
         "Từ trái nghĩa",
     ),
     (
-        r"Read the following passage and mark the letter A, B, C, or D on your answer sheet to indicate the correct word or phrase that best fits each of the numbered blanks",
+        r"Read the following passage.*?numbered blanks",
         "Điền từ vào đoạn văn",
     ),
     (
-        r"Read the following passage and mark the letter A, B, C, or D on your answer sheet to indicate the correct answer to each of the questions",
+        r"Read the following passage.*?each of the questions",
         "Đọc hiểu",
     ),
     (
@@ -72,12 +72,12 @@ QUESTION_RE = re.compile(
 )
 
 CLOZE_PASSAGE_RE = re.compile(
-    r"Read the following passage and mark the letter A, B, C, or D on your answer sheet to indicate the correct word or phrase that best fits each of the numbered blanks\.(.*?)(?=Câu\s+25\.)",
+    r"Read the following passage.*?numbered blanks\.(.*?)(?=Câu\s+25\.)",
     re.DOTALL | re.IGNORECASE,
 )
 
 READING_PASSAGE_RE = re.compile(
-    r"Read the following passage and mark the letter A, B, C, or D on your answer sheet to indicate the correct answer to each of the questions\.(.*?)(?=Câu\s+31\.)",
+    r"Read the following passage.*?each of the questions\.(.*?)(?=Câu\s+31\.)",
     re.DOTALL | re.IGNORECASE,
 )
 
@@ -109,6 +109,8 @@ PASSAGE_QUESTION_NUMBERS = {
     "cloze": 24,
     "reading": 30,
 }
+
+NA = "N/A"
 
 
 def extract_docx_text(path: Path) -> str:
@@ -275,11 +277,11 @@ def parse_questions(text: str) -> list[dict]:
                 "question_number": PASSAGE_QUESTION_NUMBERS["cloze"],
                 "section": "Điền từ vào đoạn văn",
                 "question_text": cloze_passage,
-                "option_a": "",
-                "option_b": "",
-                "option_c": "",
-                "option_d": "",
-                "correct_answer": "",
+                "option_a": NA,
+                "option_b": NA,
+                "option_c": NA,
+                "option_d": NA,
+                "correct_answer": NA,
                 "is_passage": True,
             }
         )
@@ -293,11 +295,11 @@ def parse_questions(text: str) -> list[dict]:
                 "question_number": PASSAGE_QUESTION_NUMBERS["reading"],
                 "section": "Đọc hiểu",
                 "question_text": reading_passage,
-                "option_a": "",
-                "option_b": "",
-                "option_c": "",
-                "option_d": "",
-                "correct_answer": "",
+                "option_a": NA,
+                "option_b": NA,
+                "option_c": NA,
+                "option_d": NA,
+                "correct_answer": NA,
                 "is_passage": True,
             }
         )
@@ -323,6 +325,14 @@ def style_header(ws, headers: list[str]) -> None:
         ws.column_dimensions[get_column_letter(col)].width = max(14, min(50, len(header) + 4))
 
 
+def non_null(value) -> str | int | float:
+    if value is None:
+        return NA
+    if isinstance(value, str) and not value.strip():
+        return NA
+    return value
+
+
 def write_row(ws, row: int, exam: dict, q: dict) -> None:
     values = [
         exam["title"],
@@ -346,7 +356,7 @@ def write_row(ws, row: int, exam: dict, q: dict) -> None:
         q["points"],
     ]
     for col, value in enumerate(values, start=1):
-        ws.cell(row=row, column=col, value=value)
+        ws.cell(row=row, column=col, value=non_null(value))
         ws.cell(row=row, column=col).alignment = Alignment(wrap_text=True, vertical="top")
 
 

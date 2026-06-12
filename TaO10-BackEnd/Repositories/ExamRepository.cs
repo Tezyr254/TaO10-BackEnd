@@ -36,7 +36,7 @@ public class ExamRepository : Repository<Exam>, IExamRepository
             .Include(e => e.Status)
             .Where(e =>
                 e.Status.EntityType == AppStatusCodes.EntityTypes.Exam &&
-                e.Status.Code == AppStatusCodes.Exams.Published)
+                e.Status.Code == AppStatusCodes.Exams.Active)
             .OrderByDescending(e => e.CreatedAt);
 
         int totalCount = await query.CountAsync();

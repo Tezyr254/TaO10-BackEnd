@@ -56,20 +56,15 @@ public class UserExamAttemptService : IUserExamAttemptService
             throw new ResourceNotFoundException($"Exam with ID {request.ExamId} not found", "EXAM_NOT_FOUND");
         }
 
-        // Validate exam is published
-        var completedStatus = await _statusRepository
-            .FindByEntityTypeAndCodeAsync("ATTEMPT", "SUBMITTED");
-
-        _logger.LogInformation(
-            "Status found: {Status}",
-            completedStatus == null ? "NULL" : completedStatus.StatusId.ToString()
-        );
-
         // Get in_progress status
-        var inProgressStatus = await _statusRepository.FindByEntityTypeAndCodeAsync("ATTEMPT", "IN_PROGRESS");
+        var inProgressStatus = await _statusRepository.FindByEntityTypeAndCodeAsync(
+            AppStatusCodes.EntityTypes.UserExamAttempt,
+            AppStatusCodes.Attempts.InProgress);
         if (inProgressStatus == null)
         {
-            _logger.LogError("Status 'in_progress' not found for user_exam_attempt entity");
+            _logger.LogError("Status '{StatusCode}' not found for {EntityType} entity",
+                AppStatusCodes.Attempts.InProgress,
+                AppStatusCodes.EntityTypes.UserExamAttempt);
             throw new ResourceNotFoundException("Status not found", "STATUS_NOT_FOUND");
         }
 
@@ -85,7 +80,14 @@ public class UserExamAttemptService : IUserExamAttemptService
         _logger.LogInformation("Exam started successfully. Attempt ID: {AttemptId}", attempt.UserExamAttemptId);
 
         // Return attempt with exam and questions
-        attempt = await _attemptRepository.GetByIdWithAnswersAsync(attempt.UserExamAttemptId);
+        var attemptId = attempt.UserExamAttemptId;
+        attempt = await _attemptRepository.GetByIdWithAnswersAsync(attemptId);
+        if (attempt == null)
+        {
+            _logger.LogError("Created attempt could not be reloaded. Attempt ID: {AttemptId}", attemptId);
+            throw new ResourceNotFoundException("Created attempt not found", "ATTEMPT_NOT_FOUND");
+        }
+
         return _mapper.MapToUserExamAttemptDto(attempt, includeQuestions: true, includeAnswers: false);
     }
 
@@ -139,7 +141,7 @@ public class UserExamAttemptService : IUserExamAttemptService
             throw new ResourceNotFoundException($"Attempt with ID {attemptId} not found", "ATTEMPT_NOT_FOUND");
         }
 
-        if (attempt.Status?.Code != "IN_PROGRESS")
+        if (!string.Equals(attempt.Status?.Code, AppStatusCodes.Attempts.InProgress, StringComparison.OrdinalIgnoreCase))
         {
             _logger.LogWarning("Attempt is not in progress. ID: {AttemptId}, Status: {StatusCode}", attemptId, attempt.Status?.Code);
             throw new ExamAlreadyCompletedException("Attempt is not in progress", "ATTEMPT_NOT_IN_PROGRESS");
@@ -220,7 +222,7 @@ public class UserExamAttemptService : IUserExamAttemptService
             throw new ResourceNotFoundException($"Attempt with ID {attemptId} not found", "ATTEMPT_NOT_FOUND");
         }
 
-        if (attempt.Status?.Code != "IN_PROGRESS")
+        if (!string.Equals(attempt.Status?.Code, AppStatusCodes.Attempts.InProgress, StringComparison.OrdinalIgnoreCase))
         {
             _logger.LogWarning("Attempt is not in progress. ID: {AttemptId}, Status: {StatusCode}", attemptId, attempt.Status?.Code);
             throw new ExamAlreadyCompletedException("Attempt is not in progress", "ATTEMPT_NOT_IN_PROGRESS");
@@ -236,10 +238,14 @@ public class UserExamAttemptService : IUserExamAttemptService
             : 0;
 
         // Get completed status
-        var completedStatus = await _statusRepository.FindByEntityTypeAndCodeAsync("ATTEMPT", "SUBMITTED");
+        var completedStatus = await _statusRepository.FindByEntityTypeAndCodeAsync(
+            AppStatusCodes.EntityTypes.UserExamAttempt,
+            AppStatusCodes.Attempts.Submitted);
         if (completedStatus == null)
         {
-            _logger.LogError("Status 'completed' not found for user_exam_attempt entity");
+            _logger.LogError("Status '{StatusCode}' not found for {EntityType} entity",
+                AppStatusCodes.Attempts.Submitted,
+                AppStatusCodes.EntityTypes.UserExamAttempt);
             throw new ResourceNotFoundException("Status not found", "STATUS_NOT_FOUND");
         }
 

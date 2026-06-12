@@ -57,6 +57,7 @@ builder.Services.AddScoped<IExamMapper, ExamMapper>();
 
 // Service DI
 builder.Services.AddScoped<IExamService, ExamService>();
+builder.Services.AddScoped<IExamImportService, ExamImportService>();
 builder.Services.AddScoped<IUserExamAttemptService, UserExamAttemptService>();
 
 // Configure PayOS
