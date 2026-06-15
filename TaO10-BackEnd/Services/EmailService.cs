@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using MailKit.Net.Smtp;
-using MailKit.Security;
-using MimeKit;
 using TaO10_BackEnd.Interfaces;
 
 namespace TaO10_BackEnd.Services;
@@ -13,6 +13,7 @@ public class EmailService : IEmailService
 {
     private readonly IConfiguration _config;
     private readonly ILogger<EmailService> _logger;
+    private static readonly HttpClient _httpClient = new HttpClient();
 
     public EmailService(IConfiguration config, ILogger<EmailService> logger)
     {
@@ -36,62 +37,49 @@ public class EmailService : IEmailService
 
     private async Task SendEmailInternalAsync(string toEmail, string subject, string body)
     {
-        var server = _config["SmtpSettings:Server"];
-        var portString = _config["SmtpSettings:Port"];
-        var senderName = _config["SmtpSettings:SenderName"];
+        // Use the API Key from configuration. We will reuse the Password field or a new BrevoApiKey field.
+        var apiKey = _config["SmtpSettings:BrevoApiKey"] ?? _config["SmtpSettings:Password"];
+        var senderName = _config["SmtpSettings:SenderName"] ?? "TaO10";
         var senderEmail = _config["SmtpSettings:SenderEmail"];
-        var userName = _config["SmtpSettings:UserName"];
-        var password = _config["SmtpSettings:Password"];
 
-        if (string.IsNullOrWhiteSpace(server) || string.IsNullOrWhiteSpace(senderEmail) || string.IsNullOrWhiteSpace(userName))
+        if (string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(senderEmail))
         {
-            _logger.LogWarning("SMTP settings are not configured. Skipping sending email to {Email}.", toEmail);
+            _logger.LogWarning("Brevo API settings are not configured. Skipping sending email to {Email}.", toEmail);
             return;
         }
 
-        if (!int.TryParse(portString, out var port))
-            port = 587;
-
-        var message = new MimeMessage();
-        message.From.Add(new MailboxAddress(senderName ?? "TaO10", senderEmail));
         try
         {
-            message.To.Add(MailboxAddress.Parse(toEmail));
-        }
-        catch
-        {
-            _logger.LogWarning("Invalid recipient email address: {Email}", toEmail);
-            return;
-        }
-
-        message.Subject = subject;
-
-        var bodyBuilder = new BodyBuilder();
-        bodyBuilder.TextBody = body;
-        message.Body = bodyBuilder.ToMessageBody();
-
-        using var client = new SmtpClient();
-        try
-        {
-            // Accept all SSL certificates (for dev/test). In production, remove this line.
-            client.ServerCertificateValidationCallback = (s, c, h, e) => true;
-
-            await client.ConnectAsync(server, port, SecureSocketOptions.StartTls);
-
-            if (!string.IsNullOrWhiteSpace(userName) && !string.IsNullOrWhiteSpace(password))
+            var payload = new
             {
-                await client.AuthenticateAsync(userName, password);
+                sender = new { name = senderName, email = senderEmail },
+                to = new[] { new { email = toEmail } },
+                subject = subject,
+                textContent = body
+            };
+
+            var jsonPayload = JsonSerializer.Serialize(payload);
+            var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.brevo.com/v3/smtp/email");
+            request.Headers.Add("api-key", apiKey);
+            request.Content = content;
+
+            var response = await _httpClient.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Email '{Subject}' sent to {Email} via Brevo API.", subject, toEmail);
             }
-
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
-
-            _logger.LogInformation("Email '{Subject}' sent to {Email}", subject, toEmail);
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogError("Brevo API failed to send email. Status: {Status}, Response: {Response}", response.StatusCode, errorContent);
+            }
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send email to {Email}", toEmail);
-            // swallow or rethrow depending on desired behavior; we swallow to not block flow
+            _logger.LogError(ex, "Failed to send email to {Email} via Brevo API.", toEmail);
         }
     }
 }
