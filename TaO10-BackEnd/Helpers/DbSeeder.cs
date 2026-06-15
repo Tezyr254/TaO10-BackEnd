@@ -62,19 +62,40 @@ namespace TaO10_BackEnd.Helpers
             var activeThreadStatusId = (await context.Statuses.FirstAsync(s => s.EntityType == "ForumThread" && s.Code == "ACTIVE")).StatusId;
             var publishedBlogStatusId = (await context.Statuses.FirstAsync(s => s.EntityType == "BlogPost" && s.Code == "PUBLISHED")).StatusId;
 
-          
+            // 3. SEED 5 PACKAGES: Dùng thử, Cấp tốc, Nâng cao, Chuyên sâu, Premium
+            var packagesCount = await context.Packages.CountAsync();
+            var hasChuyenSau = await context.Packages.AnyAsync(p => p.Name == "Gói Chuyên Sâu");
+            var shouldReSeedPackages = packagesCount != 5 || !hasChuyenSau;
 
-            // 3. SEED PACKAGES (Basic, Pro, Premium)
-            if (!await context.Packages.AnyAsync())
+            if (shouldReSeedPackages)
             {
+                // Clear old package exams and packages first
+                var oldPackageExams = await context.PackageExams.ToListAsync();
+                context.PackageExams.RemoveRange(oldPackageExams);
+
+                var oldPackages = await context.Packages.ToListAsync();
+                context.Packages.RemoveRange(oldPackages);
+                await context.SaveChangesAsync();
+
                 var packages = new List<Package>
                 {
                     new Package
                     {
                         PackageId = Guid.NewGuid(),
-                        Name = "Basic",
-                        Description = "Gói cơ bản mở khóa Đề thi số 1 & Đề thi số 2.",
-                        Price = 199000,
+                        Name = "Gói Dùng Thử",
+                        Description = "Trải nghiệm miễn phí 3 ngày với 1 bộ đề thi đầy đủ tính năng.",
+                        Price = 0,
+                        DurationTime = 3,
+                        StatusId = activePkgStatusId,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new Package
+                    {
+                        PackageId = Guid.NewGuid(),
+                        Name = "Gói Cấp Tốc",
+                        Description = "Khóa học 1 tháng với 30 bộ đề thi mới nhất theo đúng chuẩn đề thi thực tế.",
+                        Price = 129000,
                         DurationTime = 30,
                         StatusId = activePkgStatusId,
                         CreatedAt = DateTime.UtcNow,
@@ -83,10 +104,10 @@ namespace TaO10_BackEnd.Helpers
                     new Package
                     {
                         PackageId = Guid.NewGuid(),
-                        Name = "Pro",
-                        Description = "Gói trung cấp mở khóa Đề thi số 1, Đề thi số 2 & Đề thi số 3.",
-                        Price = 299000,
-                        DurationTime = 30,
+                        Name = "Gói Nâng Cao",
+                        Description = "Khóa học 3 tháng với 65 bộ đề thi toàn diện, bảng điều khiển cá nhân và dự đoán kết quả.",
+                        Price = 269000,
+                        DurationTime = 90,
                         StatusId = activePkgStatusId,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
@@ -94,10 +115,21 @@ namespace TaO10_BackEnd.Helpers
                     new Package
                     {
                         PackageId = Guid.NewGuid(),
-                        Name = "Premium",
-                        Description = "Gói cao cấp mở khóa toàn bộ Đề thi số 1, Đề thi số 2, Đề thi số 3 & Đề thi số 4.",
-                        Price = 399000,
-                        DurationTime = 30,
+                        Name = "Gói Chuyên Sâu",
+                        Description = "Khóa học 6 tháng với 150+ bộ đề thi chất lượng cao và phân tích kết quả chuyên sâu.",
+                        Price = 469000,
+                        DurationTime = 180,
+                        StatusId = activePkgStatusId,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new Package
+                    {
+                        PackageId = Guid.NewGuid(),
+                        Name = "Gói Premium",
+                        Description = "Khóa học 12 tháng không giới hạn đề thi, đầy đủ tính năng cao cấp nhất.",
+                        Price = 899000,
+                        DurationTime = 365,
                         StatusId = activePkgStatusId,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
@@ -108,115 +140,27 @@ namespace TaO10_BackEnd.Helpers
                 await context.SaveChangesAsync();
             }
 
-            // 4. SEED EXAMS & QUESTIONS (4 Exams)
+            // 4. SEED EXAMS & QUESTIONS (8 Exams for testing package tiers)
+            Exam exam1, exam2, exam3, exam4, exam5, exam6, exam7, exam8;
+
             if (!await context.Exams.AnyAsync())
             {
-                var exam1 = new Exam
-                {
-                    ExamId = Guid.NewGuid(),
-                    Title = "Đề thi số 1 – Luyện thi tổng hợp Tiếng Anh vào lớp 10 năm 2026",
-                    Description = "Đề thi số 1 nâng cao thuộc cấu trúc thi tuyển sinh Tiếng Anh năm 2026.",
-                    QuestionsCount = 5,
-                    DurationTime = 60,
-                    Level = "Khó",
-                    Year = 2026,
-                    ExamType = "Tuyển sinh lớp 10",
-                    ViewsCount = 12000,
-                    AttemptsCount = 520,
-                    StatusId = activeExamStatusId,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
+                exam1 = new Exam { ExamId = Guid.NewGuid(), Title = "Đề thi số 1 – Ngữ pháp Tiếng Anh cơ bản 2026", Description = "Ôn tập thì hiện tại đơn, quá khứ đơn và tương lai đơn.", QuestionsCount = 5, DurationTime = 60, Level = "Dễ", Year = 2026, ExamType = "Tuyển sinh lớp 10", ViewsCount = 12000, AttemptsCount = 520, StatusId = activeExamStatusId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
+                exam2 = new Exam { ExamId = Guid.NewGuid(), Title = "Đề thi số 2 – Đọc hiểu Tiếng Anh 2026", Description = "Luyện kỹ năng đọc hiểu và trả lời câu hỏi.", QuestionsCount = 5, DurationTime = 60, Level = "Trung bình", Year = 2026, ExamType = "Tuyển sinh lớp 10", ViewsCount = 9800, AttemptsCount = 410, StatusId = activeExamStatusId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
+                exam3 = new Exam { ExamId = Guid.NewGuid(), Title = "Đề thi số 3 – Từ vựng & Phrasal Verbs 2026", Description = "Kiểm tra ngữ âm, từ vựng và cụm từ động từ.", QuestionsCount = 5, DurationTime = 60, Level = "Trung bình", Year = 2026, ExamType = "Tuyển sinh lớp 10", ViewsCount = 7500, AttemptsCount = 330, StatusId = activeExamStatusId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
+                exam4 = new Exam { ExamId = Guid.NewGuid(), Title = "Đề thi số 4 – Viết lại câu & Tìm lỗi sai 2026", Description = "Ôn luyện viết lại câu và tìm lỗi sai cơ bản.", QuestionsCount = 5, DurationTime = 60, Level = "Khó", Year = 2026, ExamType = "Tuyển sinh lớp 10", ViewsCount = 5100, AttemptsCount = 205, StatusId = activeExamStatusId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
+                exam5 = new Exam { ExamId = Guid.NewGuid(), Title = "Đề thi số 5 – Ngữ pháp nâng cao 2026", Description = "Câu bị động, câu điều kiện và mệnh đề quan hệ.", QuestionsCount = 5, DurationTime = 60, Level = "Khó", Year = 2026, ExamType = "Tuyển sinh lớp 10", ViewsCount = 4200, AttemptsCount = 180, StatusId = activeExamStatusId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
+                exam6 = new Exam { ExamId = Guid.NewGuid(), Title = "Đề thi số 6 – Tổng hợp Tiếng Anh 2026", Description = "Đề thi tổng hợp đánh giá toàn diện các kỹ năng.", QuestionsCount = 5, DurationTime = 60, Level = "Khó", Year = 2026, ExamType = "Tuyển sinh lớp 10", ViewsCount = 3800, AttemptsCount = 160, StatusId = activeExamStatusId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
+                exam7 = new Exam { ExamId = Guid.NewGuid(), Title = "Đề thi số 7 – Đề thi thử chuyên Anh 2026", Description = "Đề thi mô phỏng kỳ thi thực tế với độ khó cao.", QuestionsCount = 5, DurationTime = 60, Level = "Khó", Year = 2026, ExamType = "Thi thử", ViewsCount = 3200, AttemptsCount = 140, StatusId = activeExamStatusId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
+                exam8 = new Exam { ExamId = Guid.NewGuid(), Title = "Đề thi số 8 – Đề thi thử trường chuyên 2026", Description = "Đề thi khó dành cho các trường chuyên hàng đầu.", QuestionsCount = 5, DurationTime = 60, Level = "Khó", Year = 2026, ExamType = "Thi thử", ViewsCount = 2800, AttemptsCount = 120, StatusId = activeExamStatusId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
 
-                var exam2 = new Exam
-                {
-                    ExamId = Guid.NewGuid(),
-                    Title = "Đề thi số 2 – Luyện thi tổng hợp Tiếng Anh vào lớp 10 năm 2026",
-                    Description = "Đề thi số 2 ôn tập các dạng bài đọc hiểu và cấu trúc ngữ pháp phổ biến.",
-                    QuestionsCount = 5,
-                    DurationTime = 60,
-                    Level = "Khó",
-                    Year = 2026,
-                    ExamType = "Tuyển sinh lớp 10",
-                    ViewsCount = 9800,
-                    AttemptsCount = 410,
-                    StatusId = activeExamStatusId,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-
-                var exam3 = new Exam
-                {
-                    ExamId = Guid.NewGuid(),
-                    Title = "Đề thi số 3 – Luyện thi tổng hợp Tiếng Anh vào lớp 10 năm 2026",
-                    Description = "Đề thi số 3 kiểm tra ngữ âm, từ vựng và cụm từ động từ (Phrasal Verbs).",
-                    QuestionsCount = 5,
-                    DurationTime = 60,
-                    Level = "Trung bình",
-                    Year = 2026,
-                    ExamType = "Tuyển sinh lớp 10",
-                    ViewsCount = 7500,
-                    AttemptsCount = 330,
-                    StatusId = activeExamStatusId,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-
-                var exam4 = new Exam
-                {
-                    ExamId = Guid.NewGuid(),
-                    Title = "Đề thi số 4 – Luyện thi tổng hợp Tiếng Anh vào lớp 10 năm 2026",
-                    Description = "Đề thi số 4 ôn luyện viết lại câu và tìm lỗi sai cơ bản.",
-                    QuestionsCount = 5,
-                    DurationTime = 60,
-                    Level = "Dễ",
-                    Year = 2026,
-                    ExamType = "Tuyển sinh lớp 10",
-                    ViewsCount = 5100,
-                    AttemptsCount = 205,
-                    StatusId = activeExamStatusId,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-
-                await context.Exams.AddRangeAsync(exam1, exam2, exam3, exam4);
+                await context.Exams.AddRangeAsync(exam1, exam2, exam3, exam4, exam5, exam6, exam7, exam8);
                 await context.SaveChangesAsync();
 
-                // Load Package References
-                var basicPkg = await context.Packages.FirstOrDefaultAsync(p => p.Name == "Basic");
-                var proPkg = await context.Packages.FirstOrDefaultAsync(p => p.Name == "Pro");
-                var premiumPkg = await context.Packages.FirstOrDefaultAsync(p => p.Name == "Premium");
-
-                var packageExams = new List<PackageExam>();
-
-                if (basicPkg != null)
-                {
-                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = basicPkg.PackageId, ExamId = exam1.ExamId, CreatedAt = DateTime.UtcNow });
-                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = basicPkg.PackageId, ExamId = exam2.ExamId, CreatedAt = DateTime.UtcNow });
-                }
-
-                if (proPkg != null)
-                {
-                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = proPkg.PackageId, ExamId = exam1.ExamId, CreatedAt = DateTime.UtcNow });
-                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = proPkg.PackageId, ExamId = exam2.ExamId, CreatedAt = DateTime.UtcNow });
-                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = proPkg.PackageId, ExamId = exam3.ExamId, CreatedAt = DateTime.UtcNow });
-                }
-
-                if (premiumPkg != null)
-                {
-                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = premiumPkg.PackageId, ExamId = exam1.ExamId, CreatedAt = DateTime.UtcNow });
-                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = premiumPkg.PackageId, ExamId = exam2.ExamId, CreatedAt = DateTime.UtcNow });
-                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = premiumPkg.PackageId, ExamId = exam3.ExamId, CreatedAt = DateTime.UtcNow });
-                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = premiumPkg.PackageId, ExamId = exam4.ExamId, CreatedAt = DateTime.UtcNow });
-                }
-
-                await context.PackageExams.AddRangeAsync(packageExams);
-                await context.SaveChangesAsync();
-
-                // Mock Questions for Exam 1, 2, 3, 4 (5 questions per exam)
+                // Mock Questions for all 8 Exams (5 questions per exam)
                 var questions = new List<Question>();
+                var examsList = new[] { exam1, exam2, exam3, exam4, exam5, exam6, exam7, exam8 };
 
-                var examsList = new[] { exam1, exam2, exam3, exam4 };
                 foreach (var ex in examsList)
                 {
                     for (int i = 1; i <= 5; i++)
@@ -227,7 +171,7 @@ namespace TaO10_BackEnd.Helpers
                             ExamId = ex.ExamId,
                             QuestionNumber = i,
                             Section = i <= 2 ? "Grammar" : i <= 4 ? "Vocabulary" : "Reading",
-                            QuestionText = $"[{ex.Title.Substring(0, 8)}] Câu hỏi số {i}: Chọn từ thích hợp: 'She usually _______ early in the morning.'",
+                            QuestionText = $"[{ex.Title.Substring(0, Math.Min(15, ex.Title.Length))}] Câu hỏi số {i}: Chọn từ thích hợp: 'She usually _______ early in the morning.'",
                             OptionA = "wake up",
                             OptionB = "wakes up",
                             OptionC = "woke up",
@@ -242,6 +186,86 @@ namespace TaO10_BackEnd.Helpers
                 }
 
                 await context.Questions.AddRangeAsync(questions);
+                await context.SaveChangesAsync();
+            }
+
+            // Always recreate package-exams mappings if packages were modified or mapping table is empty
+            if (shouldReSeedPackages || !await context.PackageExams.AnyAsync())
+            {
+                var oldPackageExams = await context.PackageExams.ToListAsync();
+                if (oldPackageExams.Any())
+                {
+                    context.PackageExams.RemoveRange(oldPackageExams);
+                    await context.SaveChangesAsync();
+                }
+
+                var examsList = await context.Exams.OrderBy(e => e.Title).ToListAsync();
+                var e1 = examsList.ElementAtOrDefault(0);
+                var e2 = examsList.ElementAtOrDefault(1);
+                var e3 = examsList.ElementAtOrDefault(2);
+                var e4 = examsList.ElementAtOrDefault(3);
+                var e5 = examsList.ElementAtOrDefault(4);
+                var e6 = examsList.ElementAtOrDefault(5);
+                var e7 = examsList.ElementAtOrDefault(6);
+                var e8 = examsList.ElementAtOrDefault(7);
+
+                var freePkg = await context.Packages.FirstOrDefaultAsync(p => p.Name == "Gói Dùng Thử");
+                var captocPkg = await context.Packages.FirstOrDefaultAsync(p => p.Name == "Gói Cấp Tốc");
+                var nangcaoPkg = await context.Packages.FirstOrDefaultAsync(p => p.Name == "Gói Nâng Cao");
+                var chuyensauPkg = await context.Packages.FirstOrDefaultAsync(p => p.Name == "Gói Chuyên Sâu");
+                var premiumPkg = await context.Packages.FirstOrDefaultAsync(p => p.Name == "Gói Premium");
+
+                var packageExams = new List<PackageExam>();
+
+                // Gói Dùng Thử: 1 đề
+                if (freePkg != null && e1 != null)
+                {
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = freePkg.PackageId, ExamId = e1.ExamId, CreatedAt = DateTime.UtcNow });
+                }
+
+                // Gói Cấp Tốc: 3 đề
+                if (captocPkg != null && e1 != null && e2 != null && e3 != null)
+                {
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = captocPkg.PackageId, ExamId = e1.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = captocPkg.PackageId, ExamId = e2.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = captocPkg.PackageId, ExamId = e3.ExamId, CreatedAt = DateTime.UtcNow });
+                }
+
+                // Gói Nâng Cao: 5 đề
+                if (nangcaoPkg != null && e1 != null && e2 != null && e3 != null && e4 != null && e5 != null)
+                {
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = nangcaoPkg.PackageId, ExamId = e1.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = nangcaoPkg.PackageId, ExamId = e2.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = nangcaoPkg.PackageId, ExamId = e3.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = nangcaoPkg.PackageId, ExamId = e4.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = nangcaoPkg.PackageId, ExamId = e5.ExamId, CreatedAt = DateTime.UtcNow });
+                }
+
+                // Gói Chuyên Sâu: 6 đề
+                if (chuyensauPkg != null && e1 != null && e2 != null && e3 != null && e4 != null && e5 != null && e6 != null)
+                {
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = chuyensauPkg.PackageId, ExamId = e1.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = chuyensauPkg.PackageId, ExamId = e2.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = chuyensauPkg.PackageId, ExamId = e3.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = chuyensauPkg.PackageId, ExamId = e4.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = chuyensauPkg.PackageId, ExamId = e5.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = chuyensauPkg.PackageId, ExamId = e6.ExamId, CreatedAt = DateTime.UtcNow });
+                }
+
+                // Gói Premium: 8 đề
+                if (premiumPkg != null && e1 != null && e2 != null && e3 != null && e4 != null && e5 != null && e6 != null && e7 != null && e8 != null)
+                {
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = premiumPkg.PackageId, ExamId = e1.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = premiumPkg.PackageId, ExamId = e2.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = premiumPkg.PackageId, ExamId = e3.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = premiumPkg.PackageId, ExamId = e4.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = premiumPkg.PackageId, ExamId = e5.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = premiumPkg.PackageId, ExamId = e6.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = premiumPkg.PackageId, ExamId = e7.ExamId, CreatedAt = DateTime.UtcNow });
+                    packageExams.Add(new PackageExam { PackageExamId = Guid.NewGuid(), PackageId = premiumPkg.PackageId, ExamId = e8.ExamId, CreatedAt = DateTime.UtcNow });
+                }
+
+                await context.PackageExams.AddRangeAsync(packageExams);
                 await context.SaveChangesAsync();
             }
 

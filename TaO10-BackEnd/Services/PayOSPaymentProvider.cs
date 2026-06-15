@@ -56,8 +56,9 @@ namespace TaO10_BackEnd.Services
                 var code = webhook.Code;
                 return new WebhookResult(code, webhookData.OrderCode, (int)webhookData.Amount);
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"Webhook verification failed: {ex.Message}\n{ex.StackTrace}");
                 return null;
             }
         }
