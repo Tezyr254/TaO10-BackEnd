@@ -23,13 +23,15 @@ namespace TaO10_BackEnd.Controllers
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IPaymentProvider _paymentProvider;
         private readonly ILogger<PaymentsController> _logger;
+        private readonly IConfiguration _configuration;
 
-        public PaymentsController(AppDbContext context, IHubContext<NotificationHub> hubContext, IPaymentProvider paymentProvider, ILogger<PaymentsController> logger)
+        public PaymentsController(AppDbContext context, IHubContext<NotificationHub> hubContext, IPaymentProvider paymentProvider, ILogger<PaymentsController> logger, IConfiguration configuration)
         {
             _context = context;
             _hubContext = hubContext;
             _paymentProvider = paymentProvider;
             _logger = logger;
+            _configuration = configuration;
         }
 
         // POST: api/Payments/checkout
@@ -76,8 +78,8 @@ namespace TaO10_BackEnd.Controllers
                 // Setup items
                 var items = new List<PaymentItem> { new PaymentItem(package.Name, 1, package.Price) };
 
-                string returnUrl = "http://localhost:4200/de-thi?payment=success";
-                string cancelUrl = "http://localhost:4200/de-thi?payment=cancel";
+                string returnUrl = _configuration["PayOS:ReturnUrl"] ?? "http://localhost:4200/de-thi?payment=success";
+                string cancelUrl = _configuration["PayOS:CancelUrl"] ?? "http://localhost:4200/de-thi?payment=cancel";
 
                 string description = $"Thanh toan {package.Name}";
                 if (description.Length > 25)
