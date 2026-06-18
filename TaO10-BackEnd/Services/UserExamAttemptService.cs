@@ -273,10 +273,25 @@ public class UserExamAttemptService : IUserExamAttemptService
         _logger.LogInformation("Exam submitted successfully. Attempt ID: {AttemptId}, Score: {Score}, CorrectAnswers: {CorrectAnswers}/{TotalQuestions}",
             attemptId, score, correctAnswers, totalQuestions);
 
-        if (request.SecurityReport != null && request.SecurityReport.AltTabCount > 0)
+        ExamSecurityReportDto securityReport;
+
+        if (request.SecurityReport != null)
         {
-            await SendSecurityReportAsync(attempt, request.SecurityReport);
+            securityReport = request.SecurityReport;
         }
+        else
+        {
+            securityReport = new ExamSecurityReportDto
+            {
+                AltTabCount = 0,
+                TotalAwaySeconds = 0,
+                AutoSubmitted = false,
+                Threshold = 3,
+                Reason = "Không ghi nhận vi phạm"
+            };
+        }
+
+        await SendSecurityReportAsync(attempt, securityReport);
 
         return _mapper.MapToUserExamAttemptDto(attempt, includeQuestions: true, includeAnswers: true);
     }
