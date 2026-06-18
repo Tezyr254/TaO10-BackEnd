@@ -88,6 +88,7 @@ public class AuthService : IAuthService
             var tempPassword = GenerateSixDigitPassword();
             var hashed = PasswordHasher.HashPassword(tempPassword);
 
+            await using var transaction = await _context.Database.BeginTransactionAsync();
             var user = new User
             {
                 UserId = Guid.NewGuid(),
@@ -109,8 +110,17 @@ public class AuthService : IAuthService
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            // Send temporary password to user's email (fire-and-forget)
-            _ = _emailService.SendPasswordAsync(email, tempPassword);
+            try
+            {
+                await _emailService.SendPasswordAsync(email, tempPassword);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send temporary password email to {Email}", email);
+                throw new InvalidOperationException($"Không gửi được email mật khẩu tạm thời: {ex.Message}", ex);
+            }
+
+            await transaction.CommitAsync();
 
             return new RegisterResponse
             {
@@ -374,8 +384,7 @@ public class AuthService : IAuthService
         _context.PasswordResetTokens.Add(token);
         await _context.SaveChangesAsync();
 
-        // send OTP email (plain otp for user)
-        _ = _emailService.SendOtpAsync(user.Email!, otp, TimeSpan.FromMinutes(5));
+        await _emailService.SendOtpAsync(user.Email!, otp, TimeSpan.FromMinutes(5));
     }
 
     public async Task SendPasswordResetOtpResendAsync(string email)
@@ -426,7 +435,7 @@ public class AuthService : IAuthService
         _context.PasswordResetTokens.Add(token);
         await _context.SaveChangesAsync();
 
-        _ = _emailService.SendOtpAsync(user.Email!, otp, TimeSpan.FromMinutes(5));
+        await _emailService.SendOtpAsync(user.Email!, otp, TimeSpan.FromMinutes(5));
     }
 
     public async Task<string> VerifyPasswordResetOtpAsync(string email, string otp)
