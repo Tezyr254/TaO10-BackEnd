@@ -124,8 +124,10 @@ Hệ thống luyện thi TAO10
 
         if (string.IsNullOrWhiteSpace(senderEmail))
         {
-            _logger.LogError("Email sender is not configured. Skipping sending email to {Email}.", toEmail);
-            throw new InvalidOperationException("Email sender is not configured.");
+            _logger.LogError(
+                "Email sender is not configured. Set SmtpSettings:SenderEmail to a Brevo-verified sender before sending to {Email}.",
+                toEmail);
+            throw new InvalidOperationException("Email sender is not configured. Missing SmtpSettings:SenderEmail.");
         }
 
         if (!string.IsNullOrWhiteSpace(brevoApiKey))
@@ -163,16 +165,27 @@ Hệ thống luyện thi TAO10
             request.Content = content;
 
             var response = await _httpClient.SendAsync(request);
+            var responseContent = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {
-                _logger.LogInformation("Email '{Subject}' sent to {Email} via Brevo API.", subject, toEmail);
+                _logger.LogInformation(
+                    "Brevo accepted email '{Subject}' to {Email}. Status: {Status}, Response: {Response}",
+                    subject,
+                    toEmail,
+                    response.StatusCode,
+                    responseContent);
                 return;
             }
 
-            var errorContent = await response.Content.ReadAsStringAsync();
-            _logger.LogError("Brevo API failed to send email. Status: {Status}, Response: {Response}", response.StatusCode, errorContent);
-            throw new InvalidOperationException($"Brevo API failed to send email. Status: {response.StatusCode}.");
+            _logger.LogError(
+                "Brevo API failed to send email '{Subject}' to {Email}. Status: {Status}, Response: {Response}",
+                subject,
+                toEmail,
+                response.StatusCode,
+                responseContent);
+            throw new InvalidOperationException(
+                $"Brevo API failed to send email. Status: {response.StatusCode}. Response: {responseContent}");
         }
         catch (Exception ex)
         {
