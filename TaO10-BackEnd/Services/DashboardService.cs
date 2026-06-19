@@ -44,7 +44,7 @@ namespace TaO10_BackEnd.Services
             var query = _context.Payments
                 .Include(p => p.User)
                 .Include(p => p.Status)
-                .OrderByDescending(p => p.CreatedAt);
+                .OrderByDescending(p => p.PaidAt ?? p.UpdatedAt ?? p.CreatedAt);
 
             var totalCount = await query.CountAsync();
 
@@ -53,15 +53,22 @@ namespace TaO10_BackEnd.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            var items = payments.Select(p => new TransactionDto
-            {
-                Id = p.PaymentId.ToString().Substring(0, 8).ToUpper(),
-                User = p.User?.FullName ?? "Unknown User",
-                Initials = GetInitials(p.User?.FullName),
-                AvatarBg = GetAvatarBg(p.User?.FullName),
-                Date = p.CreatedAt?.ToString("dd/MM/yyyy") ?? "",
-                Amount = FormatCurrency(p.ExpectedAmount),
-                Status = MapPaymentStatus(p.Status?.Code)
+            var items = payments.Select(p => {
+                var fullName = p.User != null && !string.IsNullOrWhiteSpace(p.User.FullName) ? p.User.FullName : "Người dùng ẩn danh";
+                var email = p.User != null ? p.User.Email : "";
+                var displayNameForInitials = p.User != null && !string.IsNullOrWhiteSpace(p.User.FullName) ? p.User.FullName : (p.User?.Email ?? "U");
+
+                return new TransactionDto
+                {
+                    Id = p.TransactionCode ?? p.PaymentId.ToString(),
+                    User = fullName,
+                    UserEmail = email,
+                    Initials = GetInitials(displayNameForInitials),
+                    AvatarBg = GetAvatarBg(displayNameForInitials),
+                    Date = (p.PaidAt ?? p.UpdatedAt ?? p.CreatedAt)?.ToString("dd/MM/yyyy HH:mm") ?? "",
+                    Amount = FormatCurrency(p.ReceivedAmount ?? p.ExpectedAmount),
+                    Status = MapPaymentStatus(p.Status?.Code)
+                };
             }).ToList();
 
             return new TransactionPagedResponse

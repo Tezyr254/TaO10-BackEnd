@@ -17,6 +17,7 @@ namespace TaO10_BackEnd.DTOs.Dashboard
     {
         public string Id { get; set; } = null!;
         public string User { get; set; } = null!;
+        public string? UserEmail { get; set; }
         public string Initials { get; set; } = null!;
         public string AvatarBg { get; set; } = null!;
         public string Date { get; set; } = null!;
