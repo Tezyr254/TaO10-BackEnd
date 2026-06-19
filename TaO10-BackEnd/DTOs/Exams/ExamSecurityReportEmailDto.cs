@@ -1,4 +1,4 @@
-﻿namespace TaO10_BackEnd.DTOs.Exams;
+namespace TaO10_BackEnd.DTOs.Exams;
 
 public class ExamSecurityReportEmailDto
 {

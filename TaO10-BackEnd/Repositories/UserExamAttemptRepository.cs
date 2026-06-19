@@ -80,7 +80,7 @@ public class UserExamAttemptRepository : Repository<UserExamAttempt>, IUserExamA
             .Include(ua => ua.Exam)
                 .ThenInclude(e => e!.Questions)
 
-            .Include(ua => ua.UserAnswers)  
+            .Include(ua => ua.UserAnswers)
                 .ThenInclude(ua => ua.Question)
 
             .FirstOrDefaultAsync(ua => ua.UserExamAttemptId == attemptId);
