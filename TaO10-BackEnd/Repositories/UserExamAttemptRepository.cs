@@ -41,6 +41,7 @@ public class UserExamAttemptRepository : Repository<UserExamAttempt>, IUserExamA
     {
         return await _dbSet
             .Include(ua => ua.Status)
+            .Include(ua => ua.User)
             .Include(ua => ua.Exam)
                 .ThenInclude(e => e!.Questions)
             .Include(ua => ua.UserAnswers)
@@ -74,10 +75,14 @@ public class UserExamAttemptRepository : Repository<UserExamAttempt>, IUserExamA
     {
         return await _dbSet
             .Include(ua => ua.Status)
+            .Include(ua => ua.User)   // <- thêm dòng này
+
             .Include(ua => ua.Exam)
                 .ThenInclude(e => e!.Questions)
-            .Include(ua => ua.UserAnswers)
+
+            .Include(ua => ua.UserAnswers)  
                 .ThenInclude(ua => ua.Question)
+
             .FirstOrDefaultAsync(ua => ua.UserExamAttemptId == attemptId);
     }
 }
