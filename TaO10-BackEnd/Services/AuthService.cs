@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -61,12 +61,12 @@ public class AuthService : IAuthService
                     .AnyAsync(u => u.Phone != null && u.Phone == phone);
 
                 if (phoneExists)
-                    throw new InvalidOperationException("S? di?n tho?i dã du?c dang ký.");
+                    throw new InvalidOperationException("Số điện thoại đã được đăng ký.");
             }
 
-            // Ensure default 'active' status exists for User entity. Create if missing.
+            // Ensure default 'ACTIVE' status exists for User entity. Create if missing.
             var status = await _context.Statuses
-                .FirstOrDefaultAsync(s => s.EntityType == "User" && s.Code == "active");
+                .FirstOrDefaultAsync(s => s.EntityType == "User" && s.Code == "ACTIVE");
 
             if (status == null)
             {
@@ -74,9 +74,9 @@ public class AuthService : IAuthService
                 {
                     StatusId = Guid.NewGuid(),
                     EntityType = "User",
-                    Code = "active",
-                    DisplayName = "Active",
-                    Description = "Default active status for new users",
+                    Code = "ACTIVE",
+                    DisplayName = "Hoạt động",
+                    Description = "Tài khoản đang hoạt động bình thường",
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -88,6 +88,7 @@ public class AuthService : IAuthService
             var tempPassword = GenerateSixDigitPassword();
             var hashed = PasswordHasher.HashPassword(tempPassword);
 
+            await using var transaction = await _context.Database.BeginTransactionAsync();
             var user = new User
             {
                 UserId = Guid.NewGuid(),
@@ -109,8 +110,17 @@ public class AuthService : IAuthService
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            // Send temporary password to user's email (fire-and-forget)
-            _ = _emailService.SendPasswordAsync(email, tempPassword);
+            try
+            {
+                await _emailService.SendPasswordAsync(email, tempPassword);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send temporary password email to {Email}", email);
+                throw new InvalidOperationException($"Không gửi được email mật khẩu tạm thời: {ex.Message}", ex);
+            }
+
+            await transaction.CommitAsync();
 
             return new RegisterResponse
             {
@@ -166,6 +176,9 @@ public class AuthService : IAuthService
 
         if (user == null || !PasswordHasher.VerifyPassword(password, user.PasswordHash))
             throw new UnauthorizedAccessException("Thông tin đăng nhập không hợp lệ.");
+
+        if (user.Status != null && user.Status.Code.Equals("BLOCKED", StringComparison.OrdinalIgnoreCase))
+            throw new UnauthorizedAccessException("Tài khoản của bạn đã bị khóa.");
 
         // Generate tokens
         var accessToken = _jwtHelper.GenerateToken(user);
@@ -340,11 +353,9 @@ public class AuthService : IAuthService
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email != null && EF.Functions.ILike(u.Email, emailTrim));
 
-        // Do not reveal existence to caller: behave identical whether user exists
         if (user == null)
         {
-            // Still simulate sending email for timing parity
-            return;
+            throw new KeyNotFoundException($"Email: {emailTrim} không tồn tại trong hệ thống.");
         }
 
         // Invalidate any previous unused tokens for this user
@@ -374,8 +385,7 @@ public class AuthService : IAuthService
         _context.PasswordResetTokens.Add(token);
         await _context.SaveChangesAsync();
 
-        // send OTP email (plain otp for user)
-        _ = _emailService.SendOtpAsync(user.Email!, otp, TimeSpan.FromMinutes(5));
+        await _emailService.SendOtpAsync(user.Email!, otp, TimeSpan.FromMinutes(5));
     }
 
     public async Task SendPasswordResetOtpResendAsync(string email)
@@ -386,7 +396,7 @@ public class AuthService : IAuthService
         var emailTrim = email.Trim();
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email != null && EF.Functions.ILike(u.Email, emailTrim));
-        if (user == null) return;
+        if (user == null) throw new KeyNotFoundException($"Email: {emailTrim} không tồn tại trong hệ thống.");
 
         // check last OTP created time to prevent spamming
         var last = await _context.PasswordResetTokens
@@ -426,7 +436,7 @@ public class AuthService : IAuthService
         _context.PasswordResetTokens.Add(token);
         await _context.SaveChangesAsync();
 
-        _ = _emailService.SendOtpAsync(user.Email!, otp, TimeSpan.FromMinutes(5));
+        await _emailService.SendOtpAsync(user.Email!, otp, TimeSpan.FromMinutes(5));
     }
 
     public async Task<string> VerifyPasswordResetOtpAsync(string email, string otp)
@@ -439,7 +449,7 @@ public class AuthService : IAuthService
             var emailTrim = email.Trim();
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email != null && EF.Functions.ILike(u.Email, emailTrim));
-            if (user == null) throw new KeyNotFoundException("Không tìm thấy người dùng.");
+            if (user == null) throw new KeyNotFoundException($"Email: {emailTrim} không tồn tại trong hệ thống.");
 
             var token = await _context.PasswordResetTokens
                 .Where(t => t.UserId == user.UserId && (t.IsUsed == null || t.IsUsed == false))

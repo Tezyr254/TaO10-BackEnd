@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>TaO10_BackEnd</RootNamespace>
+    <UserSecretsId>8b829455-3299-42f1-b907-ed0d0b4a1c85</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
