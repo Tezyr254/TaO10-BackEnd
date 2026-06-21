@@ -66,7 +66,7 @@ public class AuthService : IAuthService
 
             // Ensure default 'active' status exists for User entity. Create if missing.
             var status = await _context.Statuses
-                .FirstOrDefaultAsync(s => s.EntityType == "User" && s.Code == "active");
+               .FirstOrDefaultAsync(s => s.EntityType == "User" && s.Code == "ACTIVE");
 
             if (status == null)
             {
@@ -74,9 +74,9 @@ public class AuthService : IAuthService
                 {
                     StatusId = Guid.NewGuid(),
                     EntityType = "User",
-                    Code = "active",
-                    DisplayName = "Active",
-                    Description = "Default active status for new users",
+                    Code = "ACTIVE",
+                    DisplayName = "Hoạt động",
+                    Description = "Tài khoản đang hoạt động bình thường",
                     CreatedAt = DateTime.UtcNow
                 };
 
