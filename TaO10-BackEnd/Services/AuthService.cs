@@ -61,12 +61,12 @@ public class AuthService : IAuthService
                     .AnyAsync(u => u.Phone != null && u.Phone == phone);
 
                 if (phoneExists)
-                    throw new InvalidOperationException("Số điện thoại đã được đăng ký.");
+                    throw new InvalidOperationException("S? di?n tho?i dã du?c dang ký.");
             }
 
-            // Ensure default 'ACTIVE' status exists for User entity. Create if missing.
+            // Ensure default 'active' status exists for User entity. Create if missing.
             var status = await _context.Statuses
-                .FirstOrDefaultAsync(s => s.EntityType == "User" && s.Code == "ACTIVE");
+               .FirstOrDefaultAsync(s => s.EntityType == "User" && s.Code == "ACTIVE");
 
             if (status == null)
             {
@@ -176,9 +176,6 @@ public class AuthService : IAuthService
 
         if (user == null || !PasswordHasher.VerifyPassword(password, user.PasswordHash))
             throw new UnauthorizedAccessException("Thông tin đăng nhập không hợp lệ.");
-
-        if (user.Status != null && user.Status.Code.Equals("BLOCKED", StringComparison.OrdinalIgnoreCase))
-            throw new UnauthorizedAccessException("Tài khoản của bạn đã bị khóa.");
 
         // Generate tokens
         var accessToken = _jwtHelper.GenerateToken(user);

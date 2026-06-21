@@ -48,5 +48,11 @@ namespace TaO10_BackEnd.Services
                 return Task.FromResult<WebhookResult?>(null);
             }
         }
+
+        public Task<PaymentStatusResult?> GetPaymentStatusAsync(long orderCode)
+        {
+            // In local dev, return PAID to allow testing the success flow via webhook
+            return Task.FromResult<PaymentStatusResult?>(new PaymentStatusResult("PAID", orderCode, 0));
+        }
     }
 }

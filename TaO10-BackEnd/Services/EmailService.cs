@@ -129,7 +129,7 @@ Hệ thống luyện thi TAO10
                 toEmail);
             throw new InvalidOperationException("Email sender is not configured. Missing SmtpSettings:SenderEmail.");
         }
-            
+
         if (!string.IsNullOrWhiteSpace(apiKey))
         {
             await SendBrevoEmailAsync(apiKey, senderName, senderEmail, toEmail, subject, body);
