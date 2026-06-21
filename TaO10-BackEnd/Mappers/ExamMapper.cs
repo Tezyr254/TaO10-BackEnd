@@ -112,7 +112,7 @@ public class ExamMapper : IExamMapper
             ExamId = attempt.ExamId,
             StartedAt = attempt.StartedAt,
             CompletedAt = attempt.CompletedAt,
-            Score = attempt.Score,
+            Score = attempt.Score.HasValue ? attempt.Score.Value / 10 : null,
             CorrectAnswers = attempt.CorrectAnswers,
             TotalQuestions = attempt.TotalQuestions,
             TimeSpentMinutes = attempt.TimeSpentMinutes,
