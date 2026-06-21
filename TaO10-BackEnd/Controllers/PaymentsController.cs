@@ -132,9 +132,42 @@ namespace TaO10_BackEnd.Controllers
             var successStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.EntityType == "Payment" && s.Code == "SUCCESS");
             var activeUserPkgStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.EntityType == "UserPackage" && s.Code == "ACTIVE");
 
-            if (payment.StatusId == successStatus.StatusId) return Ok(new { message = "Already processed" });
+            if (payment.StatusId == successStatus.StatusId) return Ok(new { message = "Already processed", status = "PAID" });
 
-            // Just process it manually for the sake of simple logic locally
+            // CRITICAL: Check actual payment status with PayOS before marking as success
+            if (long.TryParse(orderCode, out var orderCodeLong))
+            {
+                var paymentStatus = await _paymentProvider.GetPaymentStatusAsync(orderCodeLong);
+                
+                if (paymentStatus == null)
+                {
+                    _logger.LogWarning("Could not retrieve payment status from provider for order {OrderCode}", orderCode);
+                    return Ok(new { message = "Payment status unknown. Please wait for confirmation.", status = "PENDING" });
+                }
+
+                // PayOS SDK enum PaymentLinkStatus returns PascalCase: Paid, Pending, Processing, Cancelled
+                var upperStatus = paymentStatus.Status.ToUpper();
+                if (upperStatus != "PAID")
+                {
+                    _logger.LogInformation("Payment for order {OrderCode} has status {Status} — not PAID, skipping activation", orderCode, paymentStatus.Status);
+                    
+                    // If cancelled or expired, update our record too
+                    if (upperStatus == "CANCELLED" || upperStatus == "EXPIRED")
+                    {
+                        var cancelledStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.EntityType == "Payment" && s.Code == "FAILED");
+                        if (cancelledStatus != null && payment.StatusId != cancelledStatus.StatusId)
+                        {
+                            payment.StatusId = cancelledStatus.StatusId;
+                            payment.UpdatedAt = DateTime.UtcNow;
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                    
+                    return Ok(new { message = $"Payment is {paymentStatus.Status}. Not yet paid.", status = upperStatus });
+                }
+            }
+
+            // Only reach here if PayOS confirms PAID
             using var tx = await _context.Database.BeginTransactionAsync();
             try
             {
@@ -175,7 +208,7 @@ namespace TaO10_BackEnd.Controllers
                 await _context.SaveChangesAsync();
                 await tx.CommitAsync();
 
-                return Ok(new { message = "Processed successfully" });
+                return Ok(new { message = "Processed successfully", status = "PAID" });
             }
             catch (Exception ex)
             {
