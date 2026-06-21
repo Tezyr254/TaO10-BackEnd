@@ -62,5 +62,21 @@ namespace TaO10_BackEnd.Services
                 return null;
             }
         }
+        public async Task<PaymentStatusResult?> GetPaymentStatusAsync(long orderCode)
+        {
+            try
+            {
+                var paymentInfo = await _payOS.PaymentRequests.GetAsync(orderCode);
+                if (paymentInfo == null)
+                    return null;
+
+                return new PaymentStatusResult(paymentInfo.Status.ToString(), orderCode, (int)paymentInfo.Amount);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetPaymentStatus failed for order {orderCode}: {ex.Message}");
+                return null;
+            }
+        }
     }
 }

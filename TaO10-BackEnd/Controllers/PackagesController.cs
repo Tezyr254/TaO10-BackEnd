@@ -168,6 +168,7 @@ namespace TaO10_BackEnd.Controllers
         // GET: api/Packages/my-package — Returns the best active package for the user
         [Authorize]
         [HttpGet("my-package")]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<ActionResult<UserPackageResponse>> GetMyPackage()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");

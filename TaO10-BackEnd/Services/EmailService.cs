@@ -118,7 +118,11 @@ Hệ thống luyện thi TAO10
 
     private async Task SendEmailInternalAsync(string toEmail, string subject, string body)
     {
+<<<<<<< HEAD
         var apiKey = _config["SmtpSettings:BrevoApiKey"] ?? _config["SmtpSettings:Password"];
+=======
+        var apiKey = _config["SmtpSettings:BrevoApiKey"] ?? _config["SmtpSettings:Password"]; 
+>>>>>>> quy
         var senderName = _config["SmtpSettings:SenderName"] ?? "TaO10";
         var senderEmail = _config["SmtpSettings:SenderEmail"];
 
@@ -129,7 +133,11 @@ Hệ thống luyện thi TAO10
                 toEmail);
             throw new InvalidOperationException("Email sender is not configured. Missing SmtpSettings:SenderEmail.");
         }
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> quy
         if (!string.IsNullOrWhiteSpace(apiKey))
         {
             await SendBrevoEmailAsync(apiKey, senderName, senderEmail, toEmail, subject, body);
