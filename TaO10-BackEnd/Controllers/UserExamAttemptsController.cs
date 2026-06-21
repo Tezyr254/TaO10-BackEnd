@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using TaO10_BackEnd.Common;
 using TaO10_BackEnd.DTOs.Exams;
 using TaO10_BackEnd.Exceptions;
@@ -44,6 +46,9 @@ public class UserExamAttemptsController : ControllerBase
                     400));
             }
 
+            var userIdFromToken = GetAuthenticatedUserId();
+            request.UserId ??= userIdFromToken;
+
             _logger.LogInformation("StartExam called with User ID: {UserId}, Exam ID: {ExamId}", request.UserId, request.ExamId);
 
             var attempt = await _attemptService.StartExamAsync(request);
@@ -65,6 +70,17 @@ public class UserExamAttemptsController : ControllerBase
             _logger.LogError(ex, "Error in StartExam");
             return StatusCode(500, ApiResponse<UserExamAttemptDto>.ErrorResponse("An error occurred", "INTERNAL_ERROR", 500));
         }
+    }
+
+    private Guid? GetAuthenticatedUserId()
+    {
+        var userIdValue =
+            User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+            User.FindFirstValue(ClaimTypes.NameIdentifier) ??
+            User.FindFirstValue("sub") ??
+            User.FindFirstValue("nameid");
+
+        return Guid.TryParse(userIdValue, out var userId) ? userId : null;
     }
 
     /// <summary>

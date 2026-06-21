@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 ﻿using System;
 using System.Net;
-=======
-using System;
->>>>>>> quy
 using System.Net.Http;
 using System.Net.Mail;
 using System.Text;
