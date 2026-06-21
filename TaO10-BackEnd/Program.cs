@@ -59,6 +59,8 @@ builder.Services.AddScoped<IExamMapper, ExamMapper>();
 builder.Services.AddScoped<IExamService, ExamService>();
 builder.Services.AddScoped<IExamImportService, ExamImportService>();
 builder.Services.AddScoped<IUserExamAttemptService, UserExamAttemptService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 // Configure PayOS
 var payOsConfig = builder.Configuration.GetSection("PayOS");
