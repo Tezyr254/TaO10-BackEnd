@@ -353,11 +353,9 @@ public class AuthService : IAuthService
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email != null && EF.Functions.ILike(u.Email, emailTrim));
 
-        // Do not reveal existence to caller: behave identical whether user exists
         if (user == null)
         {
-            // Still simulate sending email for timing parity
-            return;
+            throw new KeyNotFoundException($"Email: {emailTrim} không tồn tại trong hệ thống.");
         }
 
         // Invalidate any previous unused tokens for this user
@@ -398,7 +396,7 @@ public class AuthService : IAuthService
         var emailTrim = email.Trim();
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email != null && EF.Functions.ILike(u.Email, emailTrim));
-        if (user == null) return;
+        if (user == null) throw new KeyNotFoundException($"Email: {emailTrim} không tồn tại trong hệ thống.");
 
         // check last OTP created time to prevent spamming
         var last = await _context.PasswordResetTokens
@@ -451,7 +449,7 @@ public class AuthService : IAuthService
             var emailTrim = email.Trim();
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email != null && EF.Functions.ILike(u.Email, emailTrim));
-            if (user == null) throw new KeyNotFoundException("Không tìm thấy người dùng.");
+            if (user == null) throw new KeyNotFoundException($"Email: {emailTrim} không tồn tại trong hệ thống.");
 
             var token = await _context.PasswordResetTokens
                 .Where(t => t.UserId == user.UserId && (t.IsUsed == null || t.IsUsed == false))

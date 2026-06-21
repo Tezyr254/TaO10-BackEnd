@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
@@ -122,8 +122,11 @@ public class AuthController : ControllerBase
         try
         {
             await _authService.SendPasswordResetOtpAsync(request.Email);
-            // Do not reveal whether the email exists
-            return Ok(new { message = "Nếu email tồn tại, mã OTP đã được gửi." });
+            return Ok(new { message = "Mã OTP đã được gửi đến email của bạn." });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
         }
         catch (ArgumentException ex)
         {
@@ -144,7 +147,11 @@ public class AuthController : ControllerBase
         try
         {
             await _authService.SendPasswordResetOtpResendAsync(request.Email);
-            return Ok(new { message = "Mã OTP mới đã được gửi nếu email tồn tại." });
+            return Ok(new { message = "Mã OTP mới đã được gửi đến email của bạn." });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
         }
         catch (InvalidOperationException ex)
         {
