@@ -75,4 +75,68 @@ public class ExamImportController : ControllerBase
                 500));
         }
     }
+    /// <summary>
+    /// Import đề thi từ file Excel vào gói theo code và tự động gắn vào các gói cao hơn.
+    /// </summary>
+    [Authorize]
+    [HttpPost("excel/by-package-code")]
+    [RequestSizeLimit(50_000_000)]
+    public async Task<IActionResult> ImportFromExcelByPackageCode(
+        IFormFile file,
+        [FromQuery] string code,
+        CancellationToken cancellationToken)
+    {
+        var roleClaim = User.FindFirst(ClaimTypes.Role) ?? User.FindFirst("role");
+        if (roleClaim == null || !string.Equals(roleClaim.Value, "admin", StringComparison.OrdinalIgnoreCase))
+            return Forbid();
+
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            return BadRequest(ApiResponse<ExamImportResultDto>.ErrorResponse(
+                "Vui lòng truyền code gói.",
+                "PACKAGE_CODE_REQUIRED",
+                400));
+        }
+
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest(ApiResponse<ExamImportResultDto>.ErrorResponse(
+                "Vui lòng chọn file Excel (.xlsx).",
+                "FILE_REQUIRED",
+                400));
+        }
+
+        var extension = Path.GetExtension(file.FileName);
+        if (!AllowedExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
+        {
+            return BadRequest(ApiResponse<ExamImportResultDto>.ErrorResponse(
+                "Chỉ hỗ trợ file .xlsx.",
+                "INVALID_FILE_TYPE",
+                400));
+        }
+
+        try
+        {
+            await using var stream = file.OpenReadStream();
+            var result = await _importService.ImportFromExcelAsync(stream, code, cancellationToken);
+
+            return Ok(ApiResponse<ExamImportResultDto>.SuccessResponse(
+                result,
+                $"Import thành công vào {string.Join(", ", result.PackageNames)}: {result.ExamsCreated} đề mới, {result.QuestionsCreated} câu hỏi, {result.PackageLinksCreated} liên kết gói.",
+                200));
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Import Excel by package code validation failed");
+            return BadRequest(ApiResponse<ExamImportResultDto>.ErrorResponse(ex.Message, "IMPORT_VALIDATION_ERROR", 400));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Import Excel by package code failed");
+            return StatusCode(500, ApiResponse<ExamImportResultDto>.ErrorResponse(
+                "Có lỗi xảy ra khi import file Excel.",
+                "IMPORT_FAILED",
+                500));
+        }
+    }
 }

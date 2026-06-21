@@ -7,6 +7,8 @@ public class ExamImportResultDto
     public int QuestionsCreated { get; set; }
     public int PackageLinksCreated { get; set; }
     public string PackageName { get; set; } = string.Empty;
+    public List<string> PackageNames { get; set; } = new();
+    public List<string> PackageCodes { get; set; } = new();
     public List<string> CreatedExamTitles { get; set; } = new();
     public List<string> SkippedExamTitles { get; set; } = new();
     public List<string> Errors { get; set; } = new();
