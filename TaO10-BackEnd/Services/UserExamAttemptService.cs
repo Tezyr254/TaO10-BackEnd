@@ -219,6 +219,8 @@ public class UserExamAttemptService : IUserExamAttemptService
     /// </summary>
     public async Task<UserExamAttemptDto> SubmitExamAsync(Guid attemptId, SubmitExamRequest request)
     {
+        _logger.LogCritical("AAAAAAAAAAAAAAAAAAAA");
+        Console.WriteLine("AAAAAAAAAAAAAAAAAAAA");
         _logger.LogInformation("Submitting exam. Attempt ID: {AttemptId}", attemptId);
 
         // Validate attempt exists and is in progress
@@ -290,69 +292,111 @@ public class UserExamAttemptService : IUserExamAttemptService
                 Reason = "Không ghi nhận vi phạm"
             };
         }
+        try
+        {
+            Console.WriteLine("About to send email...");
 
-        await SendSecurityReportAsync(attempt, securityReport);
+            await SendSecurityReportAsync(
+                attempt,
+                securityReport);
 
+            Console.WriteLine("SendSecurityReportAsync completed");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("SubmitExamAsync caught email exception");
+            Console.WriteLine(ex.ToString());
+
+            _logger.LogError(
+                ex,
+                "Failed to send security report email. Attempt ID: {AttemptId}",
+                attempt.UserExamAttemptId);
+        }
         return _mapper.MapToUserExamAttemptDto(attempt, includeQuestions: true, includeAnswers: true);
     }
 
     private async Task SendSecurityReportAsync(
-    UserExamAttempt attempt,
-    ExamSecurityReportDto securityReport)
+        UserExamAttempt attempt,
+        ExamSecurityReportDto securityReport)
     {
-        // Email phụ huynh
-        var recipientEmail = attempt.User?.Email;
+        Console.WriteLine("========== SEND MAIL START ==========");
 
-        if (string.IsNullOrWhiteSpace(recipientEmail))
+        try
         {
-            _logger.LogWarning(
-                "Parent email not found. Attempt ID: {AttemptId}",
-                attempt.UserExamAttemptId);
+            Console.WriteLine($"AttemptId: {attempt.UserExamAttemptId}");
 
-            return;
+            // Prefer the persisted attempt user, but fall back to the client report
+            var recipientEmail = attempt.User?.Email ?? securityReport.StudentEmail;
+
+            Console.WriteLine($"User Email: {attempt.User?.Email}");
+            Console.WriteLine($"Student Email: {securityReport.StudentEmail}");
+            Console.WriteLine($"Recipient Email: {recipientEmail}");
+
+            if (string.IsNullOrWhiteSpace(recipientEmail))
+            {
+                Console.WriteLine("ERROR: recipientEmail is NULL or EMPTY");
+                return;
+            }
+
+            var securityStatus = securityReport.AutoSubmitted
+                ? "Bài làm đã bị hệ thống tự động nộp do vượt quá số lần rời màn hình cho phép."
+                : securityReport.AltTabCount > 0
+                    ? "Hệ thống ghi nhận học sinh đã rời khỏi màn hình làm bài trong quá trình thi."
+                    : "Không ghi nhận vi phạm trong quá trình làm bài.";
+
+            Console.WriteLine("Creating email DTO...");
+
+            var report = new ExamSecurityReportEmailDto
+            {
+                AttemptId = attempt.UserExamAttemptId,
+                UserId = attempt.UserId,
+
+                StudentName = attempt.User?.FullName,
+                StudentEmail = attempt.User?.Email,
+
+                ExamId = attempt.ExamId,
+                ExamTitle = attempt.Exam?.Title,
+
+                StartedAt = attempt.StartedAt,
+                CompletedAt = attempt.CompletedAt,
+
+                Score = attempt.Score.HasValue ? attempt.Score.Value / 10 : null,
+                CorrectAnswers = attempt.CorrectAnswers,
+                TotalQuestions = attempt.TotalQuestions,
+
+                AltTabCount = securityReport.AltTabCount,
+                Threshold = securityReport.Threshold,
+                TotalAwaySeconds = securityReport.TotalAwaySeconds,
+
+                AutoSubmitted = securityReport.AutoSubmitted,
+
+                Reason = securityStatus,
+                ClientTimeZone = securityReport.ClientTimeZone,
+                UserAgent = securityReport.UserAgent,
+                Events = securityReport.Events ?? new List<ExamSecurityEventDto>()
+            };
+
+            Console.WriteLine("Calling EmailService...");
+
+            await _emailService.SendExamSecurityReportAsync(
+                recipientEmail,
+                report);
+
+            Console.WriteLine("EMAIL SENT SUCCESSFULLY");
+            Console.WriteLine($"To: {recipientEmail}");
         }
-
-        var securityStatus = securityReport.AutoSubmitted
-            ? "Bài làm đã bị hệ thống tự động nộp do vượt quá số lần rời màn hình cho phép."
-            : securityReport.AltTabCount > 0
-                ? "Hệ thống ghi nhận học sinh đã rời khỏi màn hình làm bài trong quá trình thi."
-                : "Không ghi nhận vi phạm trong quá trình làm bài.";
-
-        var report = new ExamSecurityReportEmailDto
+        catch (Exception ex)
         {
-            AttemptId = attempt.UserExamAttemptId,
-            UserId = attempt.UserId,
+            Console.WriteLine("EMAIL SEND FAILED");
+            Console.WriteLine($"Message: {ex.Message}");
+            Console.WriteLine($"InnerException: {ex.InnerException?.Message}");
+            Console.WriteLine(ex.ToString());
 
-            StudentName = attempt.User?.FullName,
-            StudentEmail = attempt.User?.Email,
-
-            ExamTitle = attempt.Exam?.Title,
-
-            StartedAt = attempt.StartedAt,
-            CompletedAt = attempt.CompletedAt,
-
-            Score = attempt.Score,
-            CorrectAnswers = attempt.CorrectAnswers,
-            TotalQuestions = attempt.TotalQuestions,
-
-            AltTabCount = securityReport.AltTabCount,
-            TotalAwaySeconds = securityReport.TotalAwaySeconds,
-
-            AutoSubmitted = securityReport.AutoSubmitted,
-
-            Reason = securityStatus
-        };
-
-        await _emailService.SendExamSecurityReportAsync(
-            recipientEmail,
-            report);
-
-        _logger.LogInformation(
-            "Security report email sent successfully to {Email}. Attempt ID: {AttemptId}",
-            recipientEmail,
-            attempt.UserExamAttemptId);
-
+            throw;
+        }
+        finally
+        {
+            Console.WriteLine("=========== SEND MAIL END ===========");
+        }
     }
-
-
 }
