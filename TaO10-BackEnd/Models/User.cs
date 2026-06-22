@@ -50,4 +50,6 @@ public partial class User
     public virtual ICollection<UserPackage> UserPackages { get; set; } = new List<UserPackage>();
 
     public virtual ICollection<UserProgress> UserProgresses { get; set; } = new List<UserProgress>();
+
+    public virtual ICollection<UserStudyRoadmap> UserStudyRoadmaps { get; set; } = new List<UserStudyRoadmap>();
 }

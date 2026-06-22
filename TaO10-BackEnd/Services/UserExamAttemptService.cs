@@ -237,8 +237,11 @@ public class UserExamAttemptService : IUserExamAttemptService
             throw new ExamAlreadyCompletedException("Attempt is not in progress", "ATTEMPT_NOT_IN_PROGRESS");
         }
 
+        await SaveSubmittedAnswersAsync(attemptId, attempt, request);
+
         // Calculate score
-        var answers = attempt.UserAnswers?.ToList() ?? new List<UserAnswer>();
+        var answers = await _answerRepository.GetAnswersByAttemptAsync(attemptId);
+        attempt.UserAnswers = answers;
         int correctAnswers = answers.Count(a => a.IsCorrect ?? false);
         int totalQuestions = attempt.Exam?.QuestionsCount ?? answers.Count;
 
@@ -313,6 +316,80 @@ public class UserExamAttemptService : IUserExamAttemptService
                 attempt.UserExamAttemptId);
         }
         return _mapper.MapToUserExamAttemptDto(attempt, includeQuestions: true, includeAnswers: true);
+    }
+
+    private async Task SaveSubmittedAnswersAsync(Guid attemptId, UserExamAttempt attempt, SubmitExamRequest request)
+    {
+        var submittedAnswers = GetSubmittedAnswers(request);
+        if (submittedAnswers.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var submittedAnswer in submittedAnswers)
+        {
+            if (submittedAnswer.QuestionId == Guid.Empty || string.IsNullOrWhiteSpace(submittedAnswer.UserAnswer))
+            {
+                continue;
+            }
+
+            var normalizedAnswer = submittedAnswer.UserAnswer.Trim().ToUpperInvariant();
+            if (normalizedAnswer.Length != 1 || !normalizedAnswer.All(c => "ABCD".Contains(c)))
+            {
+                _logger.LogWarning("Skipping invalid submitted answer. Attempt ID: {AttemptId}, Question ID: {QuestionId}, Answer: {Answer}",
+                    attemptId, submittedAnswer.QuestionId, submittedAnswer.UserAnswer);
+                continue;
+            }
+
+            var question = await _questionRepository.GetByIdWithStatusAsync(submittedAnswer.QuestionId);
+            if (question == null || question.ExamId != attempt.ExamId)
+            {
+                _logger.LogWarning("Skipping submitted answer for question outside attempt exam. Attempt ID: {AttemptId}, Question ID: {QuestionId}",
+                    attemptId, submittedAnswer.QuestionId);
+                continue;
+            }
+
+            var isCorrect = normalizedAnswer == question.CorrectAnswer?.Trim().ToUpperInvariant();
+            var existingAnswer = await _answerRepository.FindByAttemptAndQuestionAsync(attemptId, submittedAnswer.QuestionId);
+
+            if (existingAnswer != null)
+            {
+                existingAnswer.UserAnswer1 = normalizedAnswer[0];
+                existingAnswer.IsCorrect = isCorrect;
+                existingAnswer.AnsweredAt = DateTime.UtcNow;
+                await _answerRepository.UpdateAsync(existingAnswer);
+                continue;
+            }
+
+            await _answerRepository.AddAsync(new UserAnswer
+            {
+                UserAnswerId = Guid.NewGuid(),
+                UserExamAttemptId = attemptId,
+                QuestionId = submittedAnswer.QuestionId,
+                UserAnswer1 = normalizedAnswer[0],
+                IsCorrect = isCorrect,
+                AnsweredAt = DateTime.UtcNow
+            });
+        }
+
+        await _answerRepository.SaveChangesAsync();
+    }
+
+    private static List<SubmitExamAnswerDto> GetSubmittedAnswers(SubmitExamRequest request)
+    {
+        var submittedAnswers = request.SubmittedAnswers ?? request.Answers;
+        if (submittedAnswers is { Count: > 0 })
+        {
+            return submittedAnswers;
+        }
+
+        return request.UserAnswers?
+            .Select(answer => new SubmitExamAnswerDto
+            {
+                QuestionId = answer.Key,
+                UserAnswer = answer.Value
+            })
+            .ToList() ?? new List<SubmitExamAnswerDto>();
     }
 
     private async Task SendSecurityReportAsync(
