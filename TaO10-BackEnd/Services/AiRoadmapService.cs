@@ -51,7 +51,7 @@ public class AiRoadmapService : IAiRoadmapService
             throw new InvalidOperationException("Bạn cần làm bài ít nhất 1 lần để có dữ liệu phân tích");
         }
 
-        var generated = await TryGenerateWithGeminiAsync(attempt);
+        var generated = await GenerateWithGeminiAsync(attempt);
         var existing = await _dbContext.UserStudyRoadmaps.FirstOrDefaultAsync(item => item.UserId == userId);
         var now = DateTime.UtcNow;
 
@@ -97,19 +97,6 @@ public class AiRoadmapService : IAiRoadmapService
             .FirstOrDefaultAsync();
     }
 
-    private async Task<GeneratedRoadmap> TryGenerateWithGeminiAsync(UserExamAttempt attempt)
-    {
-        try
-        {
-            return await GenerateWithGeminiAsync(attempt);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Gemini failed, using local roadmap fallback for attempt {AttemptId}", attempt.UserExamAttemptId);
-            return GenerateFallbackRoadmap(attempt);
-        }
-    }
-
     private async Task<GeneratedRoadmap> GenerateWithGeminiAsync(UserExamAttempt attempt)
     {
         var apiKey = _configuration["Gemini:ApiKey"];
@@ -121,7 +108,7 @@ public class AiRoadmapService : IAiRoadmapService
         var model = _configuration["Gemini:Model"];
         if (string.IsNullOrWhiteSpace(model))
         {
-            model = "gemini-1.5-flash";
+            model = "gemini-2.5-flash";
         }
 
         var request = new
@@ -166,79 +153,6 @@ public class AiRoadmapService : IAiRoadmapService
         }
 
         return ParseGeneratedRoadmap(text);
-    }
-
-    private GeneratedRoadmap GenerateFallbackRoadmap(UserExamAttempt attempt)
-    {
-        var totalQuestions = attempt.TotalQuestions ?? attempt.Exam?.QuestionsCount ?? attempt.Exam?.Questions.Count ?? 0;
-        var correctAnswers = attempt.CorrectAnswers ?? attempt.UserAnswers.Count(answer => answer.IsCorrect == true);
-        var skipped = Math.Max(0, totalQuestions - attempt.UserAnswers.Count);
-        var wrongAnswers = attempt.UserAnswers.Where(answer => answer.IsCorrect != true).ToList();
-        var weakSections = wrongAnswers
-            .Select(answer => answer.Question?.Section)
-            .Where(section => !string.IsNullOrWhiteSpace(section))
-            .GroupBy(section => section!)
-            .OrderByDescending(group => group.Count())
-            .Select(group => group.Key)
-            .Take(3)
-            .ToList();
-
-        if (weakSections.Count == 0)
-        {
-            weakSections.AddRange(new[] { "Ngữ pháp và từ vựng", "Đọc hiểu", "Viết lại câu" });
-        }
-
-        var score = attempt.Score.HasValue ? Math.Round(attempt.Score.Value / 10, 2) : 0;
-        var summary = $"Bạn đạt khoảng {score}/10 với {correctAnswers}/{totalQuestions} câu đúng. Lộ trình này ưu tiên xử lý các phần còn yếu từ attempt gần nhất, đặc biệt là {string.Join(", ", weakSections)}.";
-
-        return new GeneratedRoadmap
-        {
-            Summary = summary,
-            Strengths = new List<string>
-            {
-                correctAnswers > totalQuestions / 2 ? "Đã có nền tảng làm bài tương đối ổn" : "Đã có dữ liệu bài làm để xác định điểm yếu",
-                "Có thể cải thiện nhanh nếu ôn theo nhóm lỗi sai"
-            },
-            Weaknesses = weakSections.Concat(skipped > 0 ? new[] { "Quản lý thời gian và câu bỏ qua" } : Array.Empty<string>()).Take(5).ToList(),
-            Weeks = new List<StudyRoadmapWeekDto>
-            {
-                new()
-                {
-                    Title = "Tuần 1",
-                    Goal = $"Củng cố {weakSections[0]}",
-                    Tasks = new List<string>
-                    {
-                        "Xem lại toàn bộ câu sai trong attempt gần nhất và ghi lý do sai",
-                        $"Ôn lý thuyết trọng tâm của phần {weakSections[0]}",
-                        "Làm 20-30 câu luyện tập cùng chủ điểm và sửa lỗi ngay sau khi làm"
-                    }
-                },
-                new()
-                {
-                    Title = "Tuần 2",
-                    Goal = weakSections.Count > 1 ? $"Tăng điểm phần {weakSections[1]}" : "Tăng tốc luyện đề theo nhóm lỗi",
-                    Tasks = new List<string>
-                    {
-                        "Làm bài luyện theo thời gian giới hạn 25-30 phút",
-                        "Tổng hợp các bẫy đáp án hay chọn nhầm",
-                        "Ôn lại từ vựng/cấu trúc xuất hiện trong câu sai"
-                    }
-                },
-                new()
-                {
-                    Title = "Tuần 3",
-                    Goal = "Thi thử và đo tiến bộ",
-                    Tasks = new List<string>
-                    {
-                        "Làm ít nhất 2 đề hoàn chỉnh trong đúng thời gian",
-                        "So sánh lỗi mới với attempt cũ để xem phần nào đã giảm lỗi",
-                        "Tập trung ôn 3 nhóm lỗi còn lặp lại nhiều nhất"
-                    }
-                }
-            },
-            DailyTime = "30-45 phút/ngày",
-            NextAction = "Làm lại một đề sau 3-5 ngày ôn để cập nhật lộ trình."
-        };
     }
 
     private string BuildPrompt(UserExamAttempt attempt)
@@ -290,20 +204,20 @@ public class AiRoadmapService : IAiRoadmapService
         };
 
         return $$"""
-Bạn là giáo viên tiếng Anh luyện thi vào lớp 10. Hãy phân tích attempt gần nhất của học viên và tạo lộ trình học cá nhân hóa trong 3 tuần.
+Bạn là giáo viên tiếng Anh luyện thi vào lớp 10. Phân tích attempt gần nhất của học viên và tạo lộ trình học cá nhân hóa trong 3 tuần.
 
-Yêu cầu trả về DUY NHẤT JSON hợp lệ, không markdown, theo schema:
+Chỉ trả về JSON hợp lệ, không markdown, không giải thích ngoài JSON. Nội dung phải được tự tạo từ dữ liệu attempt, không dùng nội dung mẫu.
+
+Schema bắt buộc:
 {
-  "summary": "nhận xét tổng quan 2-3 câu bằng tiếng Việt",
-  "strengths": ["điểm mạnh 1", "điểm mạnh 2"],
-  "weaknesses": ["điểm yếu 1", "điểm yếu 2", "điểm yếu 3"],
+  "summary": string,
+  "strengths": string[],
+  "weaknesses": string[],
   "weeks": [
-    { "title": "Tuần 1", "goal": "mục tiêu", "tasks": ["việc cần làm", "việc cần làm", "việc cần làm"] },
-    { "title": "Tuần 2", "goal": "mục tiêu", "tasks": ["việc cần làm", "việc cần làm", "việc cần làm"] },
-    { "title": "Tuần 3", "goal": "mục tiêu", "tasks": ["việc cần làm", "việc cần làm", "việc cần làm"] }
+    { "title": string, "goal": string, "tasks": string[] }
   ],
-  "dailyTime": "thời lượng học mỗi ngày",
-  "nextAction": "hành động tiếp theo ngắn gọn"
+  "dailyTime": string,
+  "nextAction": string
 }
 
 Dữ liệu attempt:
@@ -334,18 +248,36 @@ Dữ liệu attempt:
             throw new InvalidOperationException("Không đọc được JSON lộ trình từ Gemini.");
         }
 
-        roadmap.Strengths = roadmap.Strengths.Where(item => !string.IsNullOrWhiteSpace(item)).Take(4).ToList();
-        roadmap.Weaknesses = roadmap.Weaknesses.Where(item => !string.IsNullOrWhiteSpace(item)).Take(5).ToList();
-        roadmap.Weeks = roadmap.Weeks.Take(3).Select((week, index) => new StudyRoadmapWeekDto
+        ValidateGeneratedRoadmap(roadmap);
+
+        roadmap.Strengths = roadmap.Strengths.Where(item => !string.IsNullOrWhiteSpace(item)).ToList();
+        roadmap.Weaknesses = roadmap.Weaknesses.Where(item => !string.IsNullOrWhiteSpace(item)).ToList();
+        roadmap.Weeks = roadmap.Weeks.Select(week => new StudyRoadmapWeekDto
         {
-            Title = string.IsNullOrWhiteSpace(week.Title) ? $"Tuần {index + 1}" : week.Title,
-            Goal = week.Goal ?? string.Empty,
-            Tasks = week.Tasks.Where(item => !string.IsNullOrWhiteSpace(item)).Take(5).ToList()
+            Title = week.Title,
+            Goal = week.Goal,
+            Tasks = week.Tasks.Where(item => !string.IsNullOrWhiteSpace(item)).ToList()
         }).ToList();
-        roadmap.DailyTime = string.IsNullOrWhiteSpace(roadmap.DailyTime) ? "30-45 phút/ngày" : roadmap.DailyTime;
-        roadmap.NextAction = string.IsNullOrWhiteSpace(roadmap.NextAction) ? "Làm lại bài và theo dõi lỗi sai." : roadmap.NextAction;
 
         return roadmap;
+    }
+
+    private void ValidateGeneratedRoadmap(GeneratedRoadmap roadmap)
+    {
+        if (string.IsNullOrWhiteSpace(roadmap.Summary) ||
+            roadmap.Strengths.Count == 0 ||
+            roadmap.Weaknesses.Count == 0 ||
+            roadmap.Weeks.Count == 0 ||
+            roadmap.Weeks.Any(week =>
+                string.IsNullOrWhiteSpace(week.Title) ||
+                string.IsNullOrWhiteSpace(week.Goal) ||
+                week.Tasks.Count == 0 ||
+                week.Tasks.Any(string.IsNullOrWhiteSpace)) ||
+            string.IsNullOrWhiteSpace(roadmap.DailyTime) ||
+            string.IsNullOrWhiteSpace(roadmap.NextAction))
+        {
+            throw new InvalidOperationException("Gemini trả về lộ trình thiếu dữ liệu.");
+        }
     }
 
     private StudyRoadmapDto MapToDto(UserStudyRoadmap roadmap)

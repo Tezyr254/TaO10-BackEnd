@@ -58,10 +58,15 @@ public class AiRoadmapsController : ControllerBase
         {
             return BadRequest(ApiResponse<StudyRoadmapDto>.ErrorResponse(ex.Message, "NO_ATTEMPT_DATA", 400));
         }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "AI roadmap generation failed for user {UserId}", userId);
+            return BadRequest(ApiResponse<StudyRoadmapDto>.ErrorResponse(ex.Message, "AI_ROADMAP_FAILED", 400));
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to generate AI roadmap for user {UserId}", userId);
-            return StatusCode(500, ApiResponse<StudyRoadmapDto>.ErrorResponse("Không tạo được lộ trình, vui lòng thử lại.", "AI_ROADMAP_FAILED", 500));
+            return StatusCode(500, ApiResponse<StudyRoadmapDto>.ErrorResponse(ex.Message, "AI_ROADMAP_FAILED", 500));
         }
     }
 
