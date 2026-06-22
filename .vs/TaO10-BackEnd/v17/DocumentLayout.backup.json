@@ -3,12 +3,20 @@
   "WorkspaceRootPath": "D:\\TaO10-BackEnd\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|d:\\tao10-backend\\tao10-backend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|solutionrelative:tao10-backend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|d:\\tao10-backend\\tao10-backend\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|solutionrelative:tao10-backend\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|d:\\tao10-backend\\tao10-backend\\controllers\\airoadmapscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|solutionrelative:tao10-backend\\controllers\\airoadmapscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|d:\\tao10-backend\\tao10-backend\\services\\airoadmapservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|solutionrelative:tao10-backend\\services\\airoadmapservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|d:\\tao10-backend\\tao10-backend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|solutionrelative:tao10-backend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|d:\\tao10-backend\\tao10-backend\\controllers\\userexamattemptscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -271,7 +279,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 179,
+          "SelectedChildIndex": 178,
           "Children": [
             {
               "$type": "Bookmark",
@@ -979,7 +987,33 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AiRoadmapService.cs",
+              "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Services\\AiRoadmapService.cs",
+              "RelativeDocumentMoniker": "TaO10-BackEnd\\Services\\AiRoadmapService.cs",
+              "ToolTip": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Services\\AiRoadmapService.cs",
+              "RelativeToolTip": "TaO10-BackEnd\\Services\\AiRoadmapService.cs",
+              "ViewState": "AgIAAJIAAAAAAAAAAAAmwCcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-22T15:22:30.646Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "AiRoadmapsController.cs",
+              "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Controllers\\AiRoadmapsController.cs",
+              "RelativeDocumentMoniker": "TaO10-BackEnd\\Controllers\\AiRoadmapsController.cs",
+              "ToolTip": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Controllers\\AiRoadmapsController.cs",
+              "RelativeToolTip": "TaO10-BackEnd\\Controllers\\AiRoadmapsController.cs",
+              "ViewState": "AgIAACEAAAAAAAAAAAAYwCEAAAA9AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-22T15:20:56.994Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "appsettings.json",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\appsettings.json",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\appsettings.json",
@@ -992,7 +1026,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 8,
               "Title": "AppDbContext.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Models\\AppDbContext.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Models\\AppDbContext.cs",
@@ -1004,7 +1038,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 10,
               "Title": "IEmailService.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Interfaces\\IEmailService.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Interfaces\\IEmailService.cs",
@@ -1016,20 +1050,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Program.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Program.cs",
               "ToolTip": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Program.cs",
               "RelativeToolTip": "TaO10-BackEnd\\Program.cs",
-              "ViewState": "AgIAAI4AAAAAAAAAAAAtwKEAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAI4AAAAAAAAAAAAtwKAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-06-21T06:16:37.724Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "UserExamAttemptService.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Services\\UserExamAttemptService.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Services\\UserExamAttemptService.cs",
@@ -1041,7 +1075,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "UserExamAttemptsController.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Controllers\\UserExamAttemptsController.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Controllers\\UserExamAttemptsController.cs",
@@ -1053,7 +1087,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "appsettings.Development.json",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\appsettings.Development.json",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\appsettings.Development.json",
@@ -1065,7 +1099,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 9,
               "Title": "UserExamAttemptRepository.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Repositories\\UserExamAttemptRepository.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Repositories\\UserExamAttemptRepository.cs",
@@ -1077,7 +1111,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 7,
               "Title": "EmailService.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Services\\EmailService.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Services\\EmailService.cs",
@@ -1089,7 +1123,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 11,
               "Title": "IUserExamAttemptService.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Services\\IUserExamAttemptService.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Services\\IUserExamAttemptService.cs",
@@ -1101,7 +1135,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 13,
               "Title": "ExamService.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Services\\ExamService.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Services\\ExamService.cs",
@@ -1113,7 +1147,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 15,
               "Title": "ExamImportController.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Controllers\\ExamImportController.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Controllers\\ExamImportController.cs",
@@ -1125,7 +1159,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 12,
               "Title": "ExamImportService.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Services\\ExamImportService.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Services\\ExamImportService.cs",
@@ -1137,7 +1171,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 14,
               "Title": "ForumController.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Controllers\\ForumController.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Controllers\\ForumController.cs",
@@ -1149,7 +1183,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 20,
               "Title": "IExamImportService.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Services\\IExamImportService.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Services\\IExamImportService.cs",
@@ -1161,7 +1195,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 19,
               "Title": "IExamService.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Services\\IExamService.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Services\\IExamService.cs",
@@ -1173,7 +1207,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 16,
               "Title": "ExamsController.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Controllers\\ExamsController.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Controllers\\ExamsController.cs",
@@ -1185,7 +1219,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 17,
               "Title": "PayOSPaymentProvider.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Services\\PayOSPaymentProvider.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Services\\PayOSPaymentProvider.cs",
@@ -1197,7 +1231,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 18,
               "Title": "LocalPaymentProvider.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Services\\LocalPaymentProvider.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Services\\LocalPaymentProvider.cs",
@@ -1209,7 +1243,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 21,
               "Title": "AuthService.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Services\\AuthService.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Services\\AuthService.cs",
@@ -1221,7 +1255,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 24,
               "Title": "StatusCodes.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Common\\StatusCodes.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Common\\StatusCodes.cs",
@@ -1233,7 +1267,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 27,
               "Title": "Microsoft.Common.CurrentVersion.targets",
               "DocumentMoniker": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\amd64\\Microsoft.Common.CurrentVersion.targets",
               "ToolTip": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\amd64\\Microsoft.Common.CurrentVersion.targets",
@@ -1243,7 +1277,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 23,
               "Title": "PackagesController.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Controllers\\PackagesController.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Controllers\\PackagesController.cs",
@@ -1255,7 +1289,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 25,
               "Title": "TaO10-BackEnd.http",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\TaO10-BackEnd.http",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\TaO10-BackEnd.http",
@@ -1267,7 +1301,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 22,
               "Title": "PaymentsController.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Controllers\\PaymentsController.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Controllers\\PaymentsController.cs",
@@ -1279,7 +1313,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 26,
               "Title": "web.config",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\web.config",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\web.config",
@@ -1291,7 +1325,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 31,
               "Title": "User.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Models\\User.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Models\\User.cs",
@@ -1303,7 +1337,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 30,
               "Title": "PackageDto.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\DTOs\\Package\\PackageDto.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\DTOs\\Package\\PackageDto.cs",
@@ -1315,7 +1349,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 28,
               "Title": "ExamDto.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\DTOs\\Exams\\ExamDto.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\DTOs\\Exams\\ExamDto.cs",
@@ -1327,7 +1361,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 29,
               "Title": "DbSeeder.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Helpers\\DbSeeder.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Helpers\\DbSeeder.cs",
@@ -1339,7 +1373,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 32,
               "Title": "ExamResponseDto.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\DTOs\\Exams\\ExamResponseDto.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\DTOs\\Exams\\ExamResponseDto.cs",
@@ -1351,7 +1385,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 31,
+              "DocumentIndex": 33,
               "Title": "ExamRepository.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Repositories\\ExamRepository.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Repositories\\ExamRepository.cs",
@@ -1363,7 +1397,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 32,
+              "DocumentIndex": 34,
               "Title": "AuthController.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Controllers\\AuthController.cs",
@@ -1375,7 +1409,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 33,
+              "DocumentIndex": 35,
               "Title": "PaymentDto.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\DTOs\\Package\\PaymentDto.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\DTOs\\Package\\PaymentDto.cs",
@@ -1387,7 +1421,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 34,
+              "DocumentIndex": 36,
               "Title": "IPaymentProvider.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Interfaces\\IPaymentProvider.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Interfaces\\IPaymentProvider.cs",
@@ -1399,7 +1433,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 35,
+              "DocumentIndex": 37,
               "Title": "launchSettings.json",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Properties\\launchSettings.json",
@@ -1411,7 +1445,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 65,
+              "DocumentIndex": 67,
               "Title": "PackageDto.cs",
               "DocumentMoniker": "C:\\Users\\QUY\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1354146479\\PackageDto.cs",
               "ToolTip": "C:\\Users\\QUY\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1354146479\\PackageDto.cs",
@@ -1421,7 +1455,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 36,
+              "DocumentIndex": 38,
               "Title": "ForumDto.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\DTOs\\ForumDto.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\DTOs\\ForumDto.cs",
@@ -1433,7 +1467,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 37,
+              "DocumentIndex": 39,
               "Title": "QuestionRepository.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Repositories\\QuestionRepository.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Repositories\\QuestionRepository.cs",
@@ -1445,7 +1479,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 38,
+              "DocumentIndex": 40,
               "Title": "IQuestionRepository.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Repositories\\IQuestionRepository.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Repositories\\IQuestionRepository.cs",
@@ -1457,7 +1491,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 39,
+              "DocumentIndex": 41,
               "Title": "NotificationsController.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Controllers\\NotificationsController.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Controllers\\NotificationsController.cs",
@@ -1469,7 +1503,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 40,
+              "DocumentIndex": 42,
               "Title": "ExamMapper.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Mappers\\ExamMapper.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Mappers\\ExamMapper.cs",
@@ -1481,7 +1515,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 41,
+              "DocumentIndex": 43,
               "Title": "NotificationHub.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Hubs\\NotificationHub.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Hubs\\NotificationHub.cs",
@@ -1493,7 +1527,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 42,
+              "DocumentIndex": 44,
               "Title": "ApiResponse.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Common\\ApiResponse.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Common\\ApiResponse.cs",
@@ -1505,7 +1539,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 44,
+              "DocumentIndex": 46,
               "Title": "IRepository.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Repositories\\IRepository.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Repositories\\IRepository.cs",
@@ -1517,7 +1551,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 43,
+              "DocumentIndex": 45,
               "Title": "IStatusRepository.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Repositories\\IStatusRepository.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Repositories\\IStatusRepository.cs",
@@ -1529,7 +1563,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 45,
+              "DocumentIndex": 47,
               "Title": "IExamRepository.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Repositories\\IExamRepository.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Repositories\\IExamRepository.cs",
@@ -1541,7 +1575,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 46,
+              "DocumentIndex": 48,
               "Title": "IUserAnswerRepository.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Repositories\\IUserAnswerRepository.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Repositories\\IUserAnswerRepository.cs",
@@ -1553,7 +1587,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 47,
+              "DocumentIndex": 49,
               "Title": "StatusRepository.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Repositories\\StatusRepository.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Repositories\\StatusRepository.cs",
@@ -1565,7 +1599,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 48,
+              "DocumentIndex": 50,
               "Title": "GlobalExceptionMiddleware.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Middleware\\GlobalExceptionMiddleware.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Middleware\\GlobalExceptionMiddleware.cs",
@@ -1577,7 +1611,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 50,
+              "DocumentIndex": 52,
               "Title": "PasswordHasher.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Helpers\\PasswordHasher.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Helpers\\PasswordHasher.cs",
@@ -1589,7 +1623,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 49,
+              "DocumentIndex": 51,
               "Title": "IAuthService.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Interfaces\\IAuthService.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Interfaces\\IAuthService.cs",
@@ -1601,7 +1635,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 52,
+              "DocumentIndex": 54,
               "Title": "VerifyOtpRequest.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\DTOs\\Auth\\VerifyOtpRequest.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\DTOs\\Auth\\VerifyOtpRequest.cs",
@@ -1613,7 +1647,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 51,
+              "DocumentIndex": 53,
               "Title": "UpdateProfileRequest.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\DTOs\\Auth\\UpdateProfileRequest.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\DTOs\\Auth\\UpdateProfileRequest.cs",
@@ -1625,7 +1659,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 53,
+              "DocumentIndex": 55,
               "Title": "TokenResponse.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\DTOs\\Auth\\TokenResponse.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\DTOs\\Auth\\TokenResponse.cs",
@@ -1637,7 +1671,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 54,
+              "DocumentIndex": 56,
               "Title": "LoginResponse.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\DTOs\\Auth\\LoginResponse.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\DTOs\\Auth\\LoginResponse.cs",
@@ -1649,7 +1683,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 55,
+              "DocumentIndex": 57,
               "Title": "LoginRequest.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\DTOs\\Auth\\LoginRequest.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\DTOs\\Auth\\LoginRequest.cs",
@@ -1661,7 +1695,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 56,
+              "DocumentIndex": 58,
               "Title": "ResetPasswordRequest.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\DTOs\\Auth\\ResetPasswordRequest.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\DTOs\\Auth\\ResetPasswordRequest.cs",
@@ -1673,7 +1707,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 57,
+              "DocumentIndex": 59,
               "Title": "JwtHelper.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Helpers\\JwtHelper.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Helpers\\JwtHelper.cs",
@@ -1685,7 +1719,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 58,
+              "DocumentIndex": 60,
               "Title": "RegisterResponse.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\DTOs\\Auth\\RegisterResponse.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\DTOs\\Auth\\RegisterResponse.cs",
@@ -1697,7 +1731,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 59,
+              "DocumentIndex": 61,
               "Title": "ForgotPasswordRequest.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\DTOs\\Auth\\ForgotPasswordRequest.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\DTOs\\Auth\\ForgotPasswordRequest.cs",
@@ -1709,7 +1743,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 61,
+              "DocumentIndex": 63,
               "Title": "RegisterRequest.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\DTOs\\Auth\\RegisterRequest.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\DTOs\\Auth\\RegisterRequest.cs",
@@ -1721,7 +1755,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 60,
+              "DocumentIndex": 62,
               "Title": "ProfileResponse.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\DTOs\\Auth\\ProfileResponse.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\DTOs\\Auth\\ProfileResponse.cs",
@@ -1733,7 +1767,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 64,
+              "DocumentIndex": 66,
               "Title": ".gitignore",
               "DocumentMoniker": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\.gitignore",
               "RelativeDocumentMoniker": "..\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\.gitignore",
@@ -1745,7 +1779,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 62,
+              "DocumentIndex": 64,
               "Title": "Status.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\Models\\Status.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Models\\Status.cs",
@@ -1757,7 +1791,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 63,
+              "DocumentIndex": 65,
               "Title": "RefreshRequest.cs",
               "DocumentMoniker": "D:\\TaO10-BackEnd\\TaO10-BackEnd\\DTOs\\Auth\\RefreshRequest.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\DTOs\\Auth\\RefreshRequest.cs",
