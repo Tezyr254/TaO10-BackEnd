@@ -69,6 +69,16 @@ public class GlobalExceptionMiddleware
                 response = ApiResponse.ErrorResponse(ex.Message, ex.ErrorCode, 400);
                 break;
 
+            case GeminiQuotaExceededException ex:
+                context.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
+                response = ApiResponse.ErrorResponse(ex.Message, ex.ErrorCode, 429);
+                break;
+
+            case GeminiUnavailableException ex:
+                context.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                response = ApiResponse.ErrorResponse(ex.Message, ex.ErrorCode, 503);
+                break;
+
             default:
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 response = ApiResponse.ErrorResponse("An unexpected error occurred", "INTERNAL_ERROR", 500);
