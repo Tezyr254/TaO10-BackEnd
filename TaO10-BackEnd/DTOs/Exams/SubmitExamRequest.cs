@@ -5,6 +5,12 @@ namespace TaO10_BackEnd.DTOs.Exams;
 /// </summary>
 public class SubmitExamRequest
 {
+    public Dictionary<Guid, string>? UserAnswers { get; set; }
+
+    public List<SubmitExamAnswerDto>? Answers { get; set; }
+
+    public List<SubmitExamAnswerDto>? SubmittedAnswers { get; set; }
+
     /// <summary>
     /// Additional notes or feedback (optional)
     /// </summary>
@@ -14,6 +20,15 @@ public class SubmitExamRequest
     /// Optional client-side anti-cheat report collected during the attempt.
     /// </summary>
     public ExamSecurityReportDto? SecurityReport { get; set; }
+}
+
+public class SubmitExamAnswerDto
+{
+    public Guid QuestionId { get; set; }
+
+    public int? QuestionNumber { get; set; }
+
+    public string? UserAnswer { get; set; }
 }
 
 public class ExamSecurityReportDto

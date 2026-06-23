@@ -13,7 +13,7 @@ public class QuestionDto
     /// <summary>
     /// Question number within the exam
     /// </summary>
-    public int QuestionNumber { get; set; }
+    public int? QuestionNumber { get; set; }
 
     /// <summary>
     /// Section of the exam (e.g., "Listening", "Reading")

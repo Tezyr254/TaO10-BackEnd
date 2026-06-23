@@ -86,7 +86,7 @@ public class ExamMapper : IExamMapper
         return new QuestionDto
         {
             QuestionId = question.QuestionId,
-            QuestionNumber = question.QuestionNumber,
+            QuestionNumber = IsPassageQuestion(question) ? null : question.QuestionNumber,
             Section = question.Section,
             QuestionText = question.QuestionText,
             OptionA = question.OptionA,
@@ -172,7 +172,11 @@ public class ExamMapper : IExamMapper
     /// </summary>
     public List<QuestionDto> MapToQuestionDtoList(IEnumerable<Question> questions, bool includeCorrectAnswer = true)
     {
-        return questions.Select(q => MapToQuestionDto(q, includeCorrectAnswer)).ToList();
+        return questions
+            .OrderBy(q => q.CreatedAt)
+            .ThenBy(q => q.QuestionNumber)
+            .Select(q => MapToQuestionDto(q, includeCorrectAnswer))
+            .ToList();
     }
 
     /// <summary>
@@ -206,6 +210,14 @@ public class ExamMapper : IExamMapper
         var code = attempt.Status?.Code;
         return string.Equals(code, AppStatusCodes.Attempts.Submitted, StringComparison.OrdinalIgnoreCase);
     }
+
+    private static bool IsPassageQuestion(Question question) =>
+        question.QuestionNumber == 0 &&
+        string.IsNullOrWhiteSpace(question.OptionA) &&
+        string.IsNullOrWhiteSpace(question.OptionB) &&
+        string.IsNullOrWhiteSpace(question.OptionC) &&
+        string.IsNullOrWhiteSpace(question.OptionD) &&
+        string.IsNullOrWhiteSpace(question.CorrectAnswer);
 
     /// <summary>
     /// Maps SubmitAnswerRequest to UserAnswer entity

@@ -50,6 +50,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<UserPackage> UserPackages { get; set; }
 
     public virtual DbSet<UserProgress> UserProgresses { get; set; }
+    public virtual DbSet<UserStudyRoadmap> UserStudyRoadmaps { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -676,6 +677,52 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_progress_user_id_fkey");
+        });
+        modelBuilder.Entity<UserStudyRoadmap>(entity =>
+        {
+            entity.HasKey(e => e.UserStudyRoadmapId).HasName("user_study_roadmaps_pkey");
+
+            entity.ToTable("user_study_roadmaps");
+
+            entity.HasIndex(e => e.UserId, "ix_user_study_roadmaps_user_id");
+
+            entity.Property(e => e.UserStudyRoadmapId)
+                .HasDefaultValueSql("uuid_generate_v4()")
+                .HasColumnName("user_study_roadmap_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("created_at");
+            entity.Property(e => e.DailyTime)
+                .HasMaxLength(100)
+                .HasColumnName("daily_time");
+            entity.Property(e => e.NextAction)
+                .HasMaxLength(500)
+                .HasColumnName("next_action");
+            entity.Property(e => e.Strengths)
+                .HasColumnType("jsonb")
+                .HasColumnName("strengths");
+            entity.Property(e => e.Summary).HasColumnName("summary");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("updated_at");
+            entity.Property(e => e.UserExamAttemptId).HasColumnName("user_exam_attempt_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.Weaknesses)
+                .HasColumnType("jsonb")
+                .HasColumnName("weaknesses");
+            entity.Property(e => e.Weeks)
+                .HasColumnType("jsonb")
+                .HasColumnName("weeks");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserStudyRoadmaps)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("user_study_roadmaps_user_id_fkey");
+
+            entity.HasOne(d => d.UserExamAttempt).WithMany()
+                .HasForeignKey(d => d.UserExamAttemptId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("user_study_roadmaps_user_exam_attempt_id_fkey");
         });
 
         OnModelCreatingPartial(modelBuilder);

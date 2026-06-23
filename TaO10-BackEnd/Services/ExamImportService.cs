@@ -8,8 +8,16 @@ namespace TaO10_BackEnd.Services;
 
 public class ExamImportService : IExamImportService
 {
-    private const string TrialPackageName = "Gói Dùng Thử";
     private const string NotApplicable = "N/A";
+
+    private static readonly IReadOnlyList<(string Code, string Name)> PackageImportChain =
+    [
+        ("free", "Gói Dùng Thử"),
+        ("1Month", "Gói Cấp Tốc"),
+        ("3Month", "Gói Chuyên Sâu"),
+        ("6Month", "Gói Nâng Cao"),
+        ("12Month", "Gói Premium")
+    ];
 
     private readonly AppDbContext _context;
     private readonly ILogger<ExamImportService> _logger;
@@ -22,8 +30,22 @@ public class ExamImportService : IExamImportService
 
     public async Task<ExamImportResultDto> ImportFromExcelAsync(Stream excelStream, CancellationToken cancellationToken = default)
     {
+        return await ImportFromExcelAsync(excelStream, "free", cancellationToken);
+    }
+
+    public async Task<ExamImportResultDto> ImportFromExcelAsync(
+        Stream excelStream,
+        string packageCode,
+        CancellationToken cancellationToken = default)
+    {
         var rows = ExamExcelParser.Parse(excelStream);
-        var result = new ExamImportResultDto { PackageName = TrialPackageName };
+        var targetPackageConfigs = GetTargetPackageConfigs(packageCode);
+        var result = new ExamImportResultDto
+        {
+            PackageName = targetPackageConfigs[0].Name,
+            PackageNames = targetPackageConfigs.Select(package => package.Name).ToList(),
+            PackageCodes = targetPackageConfigs.Select(package => package.Code).ToList()
+        };
 
         var examStatus = await _context.Statuses
             .FirstOrDefaultAsync(s =>
@@ -37,17 +59,24 @@ public class ExamImportService : IExamImportService
                 s.Code == AppStatusCodes.Questions.Active, cancellationToken)
             ?? throw new InvalidOperationException("Không tìm thấy status ACTIVE cho Question.");
 
-        var trialPackage = await _context.Packages
-            .Include(p => p.PackageExams)
-            .FirstOrDefaultAsync(p => p.Name == TrialPackageName, cancellationToken)
-            ?? throw new InvalidOperationException($"Không tìm thấy gói '{TrialPackageName}'.");
+        var packageNames = targetPackageConfigs.Select(package => package.Name).ToList();
+        var targetPackages = await _context.Packages
+            .Include(package => package.PackageExams)
+            .Where(package => packageNames.Contains(package.Name))
+            .ToListAsync(cancellationToken);
 
-        var linkedExamIds = trialPackage.PackageExams
-            .Select(pe => pe.ExamId)
-            .ToHashSet();
+        var missingPackages = packageNames
+            .Except(targetPackages.Select(package => package.Name), StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        if (missingPackages.Count > 0)
+            throw new InvalidOperationException($"Không tìm thấy gói: {string.Join(", ", missingPackages)}.");
+
+        var linkedExamIdsByPackage = targetPackages.ToDictionary(
+            package => package.PackageId,
+            package => package.PackageExams.Select(packageExam => packageExam.ExamId).ToHashSet());
 
         var groupedExams = rows
-            .GroupBy(r => r.Title, StringComparer.OrdinalIgnoreCase)
+            .GroupBy(row => row.Title, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
@@ -60,7 +89,7 @@ public class ExamImportService : IExamImportService
 
                 var firstRow = examGroup.First();
                 var existingExam = await _context.Exams
-                    .FirstOrDefaultAsync(e => e.Title == examGroup.Key, cancellationToken);
+                    .FirstOrDefaultAsync(exam => exam.Title == examGroup.Key, cancellationToken);
 
                 Exam exam;
                 if (existingExam != null)
@@ -71,7 +100,7 @@ public class ExamImportService : IExamImportService
                 }
                 else
                 {
-                    var gradableCount = examGroup.Count(r => !IsPassageRow(r));
+                    var gradableCount = examGroup.Count(row => !IsPassageRow(row));
 
                     exam = new Exam
                     {
@@ -80,7 +109,7 @@ public class ExamImportService : IExamImportService
                         Description = firstRow.Description,
                         QuestionsCount = gradableCount,
                         DurationTime = firstRow.DurationTime > 0 ? firstRow.DurationTime : 60,
-                        Level = Truncate(firstRow.Level, 10),
+                        Level = NormalizeLevel(firstRow.Level),
                         Year = firstRow.Year > 0 ? firstRow.Year : DateTime.UtcNow.Year,
                         ExamType = Truncate(firstRow.ExamType, 100),
                         ViewsCount = firstRow.ViewsCount,
@@ -94,20 +123,25 @@ public class ExamImportService : IExamImportService
                     result.ExamsCreated++;
                     result.CreatedExamTitles.Add(examGroup.Key);
 
-                    foreach (var row in examGroup.OrderBy(r => r.QuestionNumber))
+                    var rowIndex = 0;
+                    foreach (var row in examGroup)
                     {
-                        var question = MapQuestion(row, exam.ExamId, questionStatus.StatusId);
+                        var question = MapQuestion(row, exam.ExamId, questionStatus.StatusId, rowIndex++);
                         _context.Questions.Add(question);
                         result.QuestionsCreated++;
                     }
                 }
 
-                if (!linkedExamIds.Contains(exam.ExamId))
+                foreach (var package in targetPackages)
                 {
+                    var linkedExamIds = linkedExamIdsByPackage[package.PackageId];
+                    if (linkedExamIds.Contains(exam.ExamId))
+                        continue;
+
                     _context.PackageExams.Add(new PackageExam
                     {
                         PackageExamId = Guid.NewGuid(),
-                        PackageId = trialPackage.PackageId,
+                        PackageId = package.PackageId,
                         ExamId = exam.ExamId,
                         CreatedAt = DateTime.UtcNow
                     });
@@ -116,13 +150,19 @@ public class ExamImportService : IExamImportService
                 }
             }
 
-            trialPackage.UpdatedAt = DateTime.UtcNow;
+            foreach (var package in targetPackages)
+                package.UpdatedAt = DateTime.UtcNow;
+
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
             _logger.LogInformation(
-                "Imported exams from Excel. Created: {Created}, Skipped: {Skipped}, Questions: {Questions}, PackageLinks: {Links}",
-                result.ExamsCreated, result.ExamsSkipped, result.QuestionsCreated, result.PackageLinksCreated);
+                "Imported exams from Excel. Created: {Created}, Skipped: {Skipped}, Questions: {Questions}, PackageLinks: {Links}, PackageCode: {PackageCode}",
+                result.ExamsCreated,
+                result.ExamsSkipped,
+                result.QuestionsCreated,
+                result.PackageLinksCreated,
+                packageCode);
 
             return result;
         }
@@ -133,7 +173,7 @@ public class ExamImportService : IExamImportService
         }
     }
 
-    private static Question MapQuestion(ExamExcelImportRow row, Guid examId, Guid questionStatusId)
+    private static Question MapQuestion(ExamExcelImportRow row, Guid examId, Guid questionStatusId, int rowIndex)
     {
         var isPassage = IsPassageRow(row);
 
@@ -141,7 +181,7 @@ public class ExamImportService : IExamImportService
         {
             QuestionId = Guid.NewGuid(),
             ExamId = examId,
-            QuestionNumber = row.QuestionNumber,
+            QuestionNumber = isPassage ? 0 : row.QuestionNumber ?? 0,
             Section = row.Section,
             QuestionText = row.QuestionText,
             OptionA = isPassage ? null : NullIfNa(row.OptionA),
@@ -152,17 +192,55 @@ public class ExamImportService : IExamImportService
             Explanation = string.IsNullOrWhiteSpace(row.Explanation) ? "Không có giải thích." : row.Explanation,
             Points = row.Points,
             StatusId = questionStatusId,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow.AddTicks(rowIndex)
         };
     }
 
     private static bool IsPassageRow(ExamExcelImportRow row) =>
-        string.Equals(row.CorrectAnswer, NotApplicable, StringComparison.OrdinalIgnoreCase);
+        row.QuestionNumber == null ||
+        string.Equals(row.CorrectAnswer, NotApplicable, StringComparison.OrdinalIgnoreCase) ||
+        AllOptionsAreNotApplicable(row);
+
+    private static bool AllOptionsAreNotApplicable(ExamExcelImportRow row) =>
+        IsNotApplicable(row.OptionA) &&
+        IsNotApplicable(row.OptionB) &&
+        IsNotApplicable(row.OptionC) &&
+        IsNotApplicable(row.OptionD);
 
     private static string? NullIfNa(string? value) =>
-        string.IsNullOrWhiteSpace(value) || string.Equals(value, NotApplicable, StringComparison.OrdinalIgnoreCase)
-            ? null
-            : value.Trim();
+        IsNotApplicable(value) ? null : value!.Trim();
+
+    private static bool IsNotApplicable(string? value) =>
+        string.IsNullOrWhiteSpace(value) ||
+        string.Equals(value.Trim(), NotApplicable, StringComparison.OrdinalIgnoreCase);
+
+    private static string? NormalizeLevel(string? value)
+    {
+        var normalized = value?.Trim().ToLowerInvariant();
+        return normalized switch
+        {
+            "easy" => "easy",
+            "medium" => "medium",
+            "hard" => "hard",
+            _ => "medium"
+        };
+    }
+
+    private static List<(string Code, string Name)> GetTargetPackageConfigs(string packageCode)
+    {
+        var startIndex = PackageImportChain
+            .Select((package, index) => new { package, index })
+            .FirstOrDefault(item => string.Equals(item.package.Code, packageCode, StringComparison.OrdinalIgnoreCase))
+            ?.index;
+
+        if (startIndex == null)
+        {
+            var supportedCodes = string.Join(", ", PackageImportChain.Select(package => package.Code));
+            throw new InvalidOperationException($"Code gói không hợp lệ. Hỗ trợ: {supportedCodes}.");
+        }
+
+        return PackageImportChain.Skip(startIndex.Value).ToList();
+    }
 
     private static string? Truncate(string? value, int maxLength)
     {
