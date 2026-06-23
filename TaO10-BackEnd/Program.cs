@@ -61,7 +61,8 @@ builder.Services.AddScoped<IExamImportService, ExamImportService>();
 builder.Services.AddScoped<IUserExamAttemptService, UserExamAttemptService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
-builder.Services.AddHttpClient<IAiRoadmapService, AiRoadmapService>();
+builder.Services.AddScoped<IAiRoadmapService, AiRoadmapService>();
+builder.Services.AddHttpClient<IGeminiRoadmapService, GeminiRoadmapService>();
 
 // Configure PayOS
 var payOsConfig = builder.Configuration.GetSection("PayOS");

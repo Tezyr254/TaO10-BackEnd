@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaO10_BackEnd.Common;
 using TaO10_BackEnd.DTOs.AiRoadmaps;
+using TaO10_BackEnd.Exceptions;
 using TaO10_BackEnd.Services;
 
 namespace TaO10_BackEnd.Controllers;
@@ -53,6 +54,16 @@ public class AiRoadmapsController : ControllerBase
         {
             var roadmap = await _aiRoadmapService.GenerateRoadmapAsync(userId.Value);
             return Ok(ApiResponse<StudyRoadmapDto>.SuccessResponse(roadmap, "Roadmap generated successfully"));
+        }
+        catch (GeminiQuotaExceededException ex)
+        {
+            _logger.LogWarning(ex, "Gemini quota exceeded while generating roadmap for user {UserId}", userId);
+            return StatusCode(429, ApiResponse<StudyRoadmapDto>.ErrorResponse(ex.Message, ex.ErrorCode, 429));
+        }
+        catch (GeminiUnavailableException ex)
+        {
+            _logger.LogWarning(ex, "Gemini unavailable while generating roadmap for user {UserId}", userId);
+            return StatusCode(503, ApiResponse<StudyRoadmapDto>.ErrorResponse(ex.Message, ex.ErrorCode, 503));
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("ít nhất 1 lần", StringComparison.OrdinalIgnoreCase))
         {
