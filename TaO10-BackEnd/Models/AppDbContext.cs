@@ -50,7 +50,6 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<UserPackage> UserPackages { get; set; }
 
     public virtual DbSet<UserProgress> UserProgresses { get; set; }
-
     public virtual DbSet<UserStudyRoadmap> UserStudyRoadmaps { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -679,14 +678,13 @@ public partial class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_progress_user_id_fkey");
         });
-
         modelBuilder.Entity<UserStudyRoadmap>(entity =>
         {
             entity.HasKey(e => e.UserStudyRoadmapId).HasName("user_study_roadmaps_pkey");
 
             entity.ToTable("user_study_roadmaps");
 
-            entity.HasIndex(e => e.UserId, "ix_user_study_roadmaps_user_id").IsUnique();
+            entity.HasIndex(e => e.UserId, "ix_user_study_roadmaps_user_id");
 
             entity.Property(e => e.UserStudyRoadmapId)
                 .HasDefaultValueSql("uuid_generate_v4()")

@@ -12,8 +12,8 @@ using TaO10_BackEnd.Models;
 namespace TaO10_BackEnd.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260622103129_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260623205444_AddUserStudyRoadmapOnly")]
+    partial class AddUserStudyRoadmapOnly
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1076,8 +1076,7 @@ namespace TaO10_BackEnd.Migrations
 
                     b.HasIndex("UserExamAttemptId");
 
-                    b.HasIndex(new[] { "UserId" }, "ix_user_study_roadmaps_user_id")
-                        .IsUnique();
+                    b.HasIndex(new[] { "UserId" }, "ix_user_study_roadmaps_user_id");
 
                     b.ToTable("user_study_roadmaps", (string)null);
                 });

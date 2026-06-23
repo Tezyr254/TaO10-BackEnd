@@ -1073,8 +1073,7 @@ namespace TaO10_BackEnd.Migrations
 
                     b.HasIndex("UserExamAttemptId");
 
-                    b.HasIndex(new[] { "UserId" }, "ix_user_study_roadmaps_user_id")
-                        .IsUnique();
+                    b.HasIndex(new[] { "UserId" }, "ix_user_study_roadmaps_user_id");
 
                     b.ToTable("user_study_roadmaps", (string)null);
                 });
