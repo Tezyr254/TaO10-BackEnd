@@ -53,10 +53,21 @@ namespace TaO10_BackEnd.Services
                 .Take(pageSize)
                 .ToListAsync();
 
+            var vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
             var items = payments.Select(p => {
                 var fullName = p.User != null && !string.IsNullOrWhiteSpace(p.User.FullName) ? p.User.FullName : "Người dùng ẩn danh";
                 var email = p.User != null ? p.User.Email : "";
                 var displayNameForInitials = p.User != null && !string.IsNullOrWhiteSpace(p.User.FullName) ? p.User.FullName : (p.User?.Email ?? "U");
+
+                var dateUtc = p.PaidAt ?? p.UpdatedAt ?? p.CreatedAt;
+                var dateStr = "";
+                if (dateUtc.HasValue)
+                {
+                    var utcTime = DateTime.SpecifyKind(dateUtc.Value, DateTimeKind.Utc);
+                    var vnTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, vnTimeZone);
+                    dateStr = vnTime.ToString("dd/MM/yyyy HH:mm");
+                }
 
                 return new TransactionDto
                 {
@@ -65,7 +76,7 @@ namespace TaO10_BackEnd.Services
                     UserEmail = email,
                     Initials = GetInitials(displayNameForInitials),
                     AvatarBg = GetAvatarBg(displayNameForInitials),
-                    Date = (p.PaidAt ?? p.UpdatedAt ?? p.CreatedAt)?.ToString("dd/MM/yyyy HH:mm") ?? "",
+                    Date = dateStr,
                     Amount = FormatCurrency(p.ReceivedAmount ?? p.ExpectedAmount),
                     Status = MapPaymentStatus(p.Status?.Code)
                 };
@@ -81,40 +92,51 @@ namespace TaO10_BackEnd.Services
         public async Task<List<RevenueDataDto>> GetRevenueAnalyticsAsync(string period)
         {
             var data = new List<RevenueDataDto>();
-            var currentDate = DateTime.UtcNow;
+            var vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var currentDateVn = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
 
             if (period.ToLower() == "weekly")
             {
-                var startOfWeek = currentDate.AddDays(-(int)currentDate.DayOfWeek + (int)DayOfWeek.Monday);
+                var daysToSubtract = (int)currentDateVn.DayOfWeek - (int)DayOfWeek.Monday;
+                if (daysToSubtract < 0) daysToSubtract += 7;
+                var startOfWeekVn = currentDateVn.Date.AddDays(-daysToSubtract);
+                
                 for (int i = 0; i < 7; i++)
                 {
-                    var date = startOfWeek.AddDays(i);
+                    var dateVn = startOfWeekVn.AddDays(i);
+                    var startOfDayUtc = TimeZoneInfo.ConvertTimeToUtc(dateVn, vnTimeZone);
+                    var endOfDayUtc = startOfDayUtc.AddDays(1);
+                    
                     var sum = await _context.Payments
-                        .Where(p => p.CreatedAt != null && p.CreatedAt.Value.Date == date.Date)
+                        .Where(p => p.CreatedAt != null && p.CreatedAt >= startOfDayUtc && p.CreatedAt < endOfDayUtc)
                         .SumAsync(p => (decimal)(p.ReceivedAmount ?? 0));
                         
-                    data.Add(new RevenueDataDto { Month = GetDayOfWeekName(date.DayOfWeek), Value = sum });
+                    data.Add(new RevenueDataDto { Month = GetDayOfWeekName(dateVn.DayOfWeek), Value = sum });
                 }
             }
             else if (period.ToLower() == "yearly")
             {
                 var yearlyData = await _context.Payments
                     .Where(p => p.CreatedAt != null)
-                    .GroupBy(p => p.CreatedAt.Value.Year)
+                    .Select(p => new { p.CreatedAt, p.ReceivedAmount })
+                    .ToListAsync();
+                    
+                var grouped = yearlyData
+                    .GroupBy(p => TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(p.CreatedAt!.Value, DateTimeKind.Utc), vnTimeZone).Year)
                     .Select(g => new {
                         Year = g.Key,
                         Sum = g.Sum(p => (decimal)(p.ReceivedAmount ?? 0))
                     })
                     .OrderBy(x => x.Year)
-                    .ToListAsync();
+                    .ToList();
                     
-                if (!yearlyData.Any())
+                if (!grouped.Any())
                 {
-                    data.Add(new RevenueDataDto { Month = currentDate.Year.ToString(), Value = 0 });
+                    data.Add(new RevenueDataDto { Month = currentDateVn.Year.ToString(), Value = 0 });
                 }
                 else 
                 {
-                    foreach (var item in yearlyData)
+                    foreach (var item in grouped)
                     {
                         data.Add(new RevenueDataDto { Month = item.Year.ToString(), Value = item.Sum });
                     }
@@ -124,8 +146,12 @@ namespace TaO10_BackEnd.Services
             {
                 for (int i = 1; i <= 12; i++)
                 {
+                    var startOfMonthVn = new DateTime(currentDateVn.Year, i, 1);
+                    var startOfMonthUtc = TimeZoneInfo.ConvertTimeToUtc(startOfMonthVn, vnTimeZone);
+                    var endOfMonthUtc = startOfMonthUtc.AddMonths(1);
+                    
                     var sum = await _context.Payments
-                        .Where(p => p.CreatedAt != null && p.CreatedAt.Value.Year == currentDate.Year && p.CreatedAt.Value.Month == i)
+                        .Where(p => p.CreatedAt != null && p.CreatedAt >= startOfMonthUtc && p.CreatedAt < endOfMonthUtc)
                         .SumAsync(p => (decimal)(p.ReceivedAmount ?? 0));
                         
                     data.Add(new RevenueDataDto { Month = $"T{i}", Value = sum });
