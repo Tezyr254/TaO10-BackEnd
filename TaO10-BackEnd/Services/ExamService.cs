@@ -105,7 +105,11 @@ public class ExamService : IExamService
 
         var examDto = _mapper.MapToExamDto(exam);
         var questionsDto = exam.Questions != null
-            ? _mapper.MapToQuestionDtoList(exam.Questions, includeCorrectAnswer: false)
+            ? _mapper.MapToQuestionDtoList(
+                exam.Questions
+                    .OrderBy(q => q.CreatedAt)
+                    .ThenBy(q => q.QuestionNumber),
+                includeCorrectAnswer: false)
             : new List<QuestionDto>();
 
         return new ExamResponseDto

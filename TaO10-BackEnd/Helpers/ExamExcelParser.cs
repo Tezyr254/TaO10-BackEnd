@@ -13,7 +13,7 @@ public class ExamExcelImportRow
     public string ExamType { get; set; } = string.Empty;
     public int ViewsCount { get; set; }
     public int AttemptsCount { get; set; }
-    public int QuestionNumber { get; set; }
+    public int? QuestionNumber { get; set; }
     public string Section { get; set; } = string.Empty;
     public string QuestionText { get; set; } = string.Empty;
     public string OptionA { get; set; } = string.Empty;
@@ -66,7 +66,7 @@ public static class ExamExcelParser
                 ExamType = GetCellString(row, columnMap, "ExamType"),
                 ViewsCount = GetCellInt(row, columnMap, "ViewsCount"),
                 AttemptsCount = GetCellInt(row, columnMap, "AttemptsCount"),
-                QuestionNumber = GetCellInt(row, columnMap, "QuestionNumber"),
+                QuestionNumber = GetCellNullableInt(row, columnMap, "QuestionNumber"),
                 Section = GetCellString(row, columnMap, "Section"),
                 QuestionText = GetCellString(row, columnMap, "QuestionText"),
                 OptionA = GetCellString(row, columnMap, "OptionA"),
@@ -125,6 +125,25 @@ public static class ExamExcelParser
             return (int)doubleValue;
 
         return int.TryParse(cell.GetString().Trim(), out var parsed) ? parsed : 0;
+    }
+
+    private static int? GetCellNullableInt(IXLRow row, Dictionary<string, int> columnMap, string header)
+    {
+        if (!columnMap.TryGetValue(header, out var col))
+            return null;
+
+        var cell = row.Cell(col);
+        if (cell.IsEmpty())
+            return null;
+
+        if (cell.TryGetValue(out int intValue))
+            return intValue;
+
+        if (cell.TryGetValue(out double doubleValue))
+            return (int)doubleValue;
+
+        var text = cell.GetString().Trim();
+        return int.TryParse(text, out var parsed) ? parsed : null;
     }
 
     private static decimal GetCellDecimal(IXLRow row, Dictionary<string, int> columnMap, string header)

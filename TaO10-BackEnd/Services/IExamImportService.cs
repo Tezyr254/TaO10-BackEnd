@@ -5,4 +5,5 @@ namespace TaO10_BackEnd.Services;
 public interface IExamImportService
 {
     Task<ExamImportResultDto> ImportFromExcelAsync(Stream excelStream, CancellationToken cancellationToken = default);
+    Task<ExamImportResultDto> ImportFromExcelAsync(Stream excelStream, string packageCode, CancellationToken cancellationToken = default);
 }
