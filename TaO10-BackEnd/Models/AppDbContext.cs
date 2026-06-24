@@ -414,7 +414,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.OptionC).HasColumnName("option_c");
             entity.Property(e => e.OptionD).HasColumnName("option_d");
             entity.Property(e => e.Points)
-                .HasPrecision(3, 1)
+                .HasPrecision(5, 2)
                 .HasColumnName("points");
             entity.Property(e => e.QuestionNumber).HasColumnName("question_number");
             entity.Property(e => e.QuestionText).HasColumnName("question_text");
