@@ -18,6 +18,11 @@ var configuration = builder.Configuration;
 // CORS - allow Angular dev origin
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:4200" };
 
+Console.WriteLine("=== CORS ORIGINS ===");
+foreach (var origin in allowedOrigins)
+{
+    Console.WriteLine(origin);
+}
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
