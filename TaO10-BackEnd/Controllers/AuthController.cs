@@ -29,7 +29,12 @@ public class AuthController : ControllerBase
         try
         {
             var result = await _authService.RegisterAsync(request);
-            return CreatedAtAction(null, new { userId = result.UserId, email = result.Email });
+            return StatusCode(StatusCodes.Status201Created, new
+            {
+                userId = result.UserId,
+                email = result.Email,
+                fullName = result.FullName
+            });
         }
         catch (InvalidOperationException ex)
         {

@@ -12,8 +12,8 @@ using TaO10_BackEnd.Models;
 namespace TaO10_BackEnd.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260623205444_AddUserStudyRoadmapOnly")]
-    partial class AddUserStudyRoadmapOnly
+    [Migration("20260626040242_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
