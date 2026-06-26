@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 using System.Text;
 using TaO10_BackEnd.Helpers;
 using TaO10_BackEnd.Interfaces;
@@ -93,7 +94,9 @@ var jwtAudience = builder.Configuration["Jwt:Audience"];
 
 if (string.IsNullOrWhiteSpace(jwtKey))
 {
-    throw new InvalidOperationException("Missing Jwt:Key configuration.");
+    jwtKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+    builder.Configuration["Jwt:Key"] = jwtKey;
+    Console.WriteLine("WARNING: Jwt:Key is not configured. Generated a temporary key for this process. Set Jwt__Key in Render for stable logins.");
 }
 
 builder.Services.AddAuthentication(options =>
