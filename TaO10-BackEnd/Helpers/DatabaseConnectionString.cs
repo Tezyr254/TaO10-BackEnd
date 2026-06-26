@@ -8,10 +8,14 @@ public static class DatabaseConnectionString
 {
     public static string Get(IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("MyCnn");
+        var connectionString = configuration.GetConnectionString("MyCnn")
+            ?? configuration.GetConnectionString("DefaultConnection");
+
         if (!string.IsNullOrWhiteSpace(connectionString))
         {
-            return connectionString;
+            return IsPostgresUrl(connectionString)
+                ? FromPostgresUrl(connectionString)
+                : connectionString;
         }
 
         var databaseUrl = configuration["DATABASE_URL"] ?? configuration["POSTGRES_URL"];
@@ -21,7 +25,13 @@ public static class DatabaseConnectionString
         }
 
         throw new InvalidOperationException(
-            "Missing database connection. Set ConnectionStrings__MyCnn or DATABASE_URL.");
+            "Missing database connection. Set ConnectionStrings__MyCnn, ConnectionStrings__DefaultConnection, or DATABASE_URL.");
+    }
+
+    private static bool IsPostgresUrl(string value)
+    {
+        return value.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string FromPostgresUrl(string databaseUrl)
