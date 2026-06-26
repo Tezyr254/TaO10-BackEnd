@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using TaO10_BackEnd.Helpers;
 
 namespace TaO10_BackEnd.Models;
 
@@ -54,12 +55,18 @@ public partial class AppDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        if (optionsBuilder.IsConfigured)
+        {
+            return;
+        }
+
         var builder = new ConfigurationBuilder();
         builder.SetBasePath(Directory.GetCurrentDirectory());
-        builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-        //builder.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
+        builder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+        builder.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
+        builder.AddEnvironmentVariables();
         var configuration = builder.Build();
-        optionsBuilder.UseNpgsql(configuration.GetConnectionString("MyCnn"));
+        optionsBuilder.UseNpgsql(DatabaseConnectionString.Get(configuration));
 
     }
 

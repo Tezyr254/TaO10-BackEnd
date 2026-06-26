@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using TaO10_BackEnd.Helpers;
 using TaO10_BackEnd.Interfaces;
 using TaO10_BackEnd.Mappers;
 using TaO10_BackEnd.Middleware;
@@ -16,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
 // CORS - allow Angular dev origin
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:4200" };
+var allowedOrigins = GetAllowedOrigins(builder.Configuration);
 
 Console.WriteLine("=== CORS ORIGINS ===");
 foreach (var origin in allowedOrigins)
@@ -41,7 +42,7 @@ builder.Services.AddSwaggerGen();
 
 // DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("MyCnn")));
+    options.UseNpgsql(DatabaseConnectionString.Get(builder.Configuration)));
 
 // JWT helper and auth service
 builder.Services.AddSingleton<JwtHelper>();
@@ -90,6 +91,11 @@ var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtAudience = builder.Configuration["Jwt:Audience"];
 
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    throw new InvalidOperationException("Missing Jwt:Key configuration.");
+}
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -132,6 +138,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<AppDbContext>();
+        await context.Database.MigrateAsync();
         await TaO10_BackEnd.Helpers.DbSeeder.SeedAsync(context);
     }
     catch (Exception ex)
@@ -161,7 +168,21 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapControllers();
 app.MapHub<TaO10_BackEnd.Hubs.NotificationHub>("/hubs/notification");
 
 app.Run();
+
+static string[] GetAllowedOrigins(IConfiguration configuration)
+{
+    var csvOrigins = configuration["CORS_ALLOWED_ORIGINS"];
+    if (!string.IsNullOrWhiteSpace(csvOrigins))
+    {
+        return csvOrigins
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    }
+
+    return configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+        ?? new[] { "http://localhost:4200" };
+}
