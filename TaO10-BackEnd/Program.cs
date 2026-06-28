@@ -18,14 +18,21 @@ var configuration = builder.Configuration;
 // CORS - allow Angular dev origin
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:4200" };
 
+Console.WriteLine("=== CORS ORIGINS ===");
+foreach (var origin in allowedOrigins)
+{
+    Console.WriteLine(origin);
+}
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins(allowedOrigins)
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials(); // only if you use cookies; otherwise you can omit AllowCredentials
+        policy.WithOrigins(
+                "https://tao10m.com"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
