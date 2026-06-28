@@ -3,16 +3,20 @@
   "WorkspaceRootPath": "D:\\TaO10\\TaO10-BackEnd\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|d:\\tao10\\tao10-backend\\tao10-backend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|solutionrelative:tao10-backend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|d:\\tao10\\tao10-backend\\tao10-backend\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|solutionrelative:tao10-backend\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|d:\\tao10\\tao10-backend\\tao10-backend\\models\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|solutionrelative:tao10-backend\\models\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|d:\\tao10\\tao10-backend\\tao10-backend\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|solutionrelative:tao10-backend\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|d:\\tao10\\tao10-backend\\tao10-backend\\models\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|solutionrelative:tao10-backend\\models\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|d:\\tao10\\tao10-backend\\tao10-backend\\controllers\\airoadmapscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -45,10 +49,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|d:\\tao10\\tao10-backend\\tao10-backend\\interfaces\\idashboardservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|solutionrelative:tao10-backend\\interfaces\\idashboardservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|d:\\tao10\\tao10-backend\\tao10-backend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|solutionrelative:tao10-backend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{DC4D5BC1-53DD-41F0-8453-EE5637554D6A}|TaO10-BackEnd\\TaO10-BackEnd.csproj|d:\\tao10\\tao10-backend\\tao10-backend\\controllers\\paymentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -284,7 +284,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 172,
+          "SelectedChildIndex": 176,
           "Children": [
             {
               "$type": "Bookmark",
@@ -968,7 +968,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "Dockerfile",
               "DocumentMoniker": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\Dockerfile",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Dockerfile",
@@ -992,13 +992,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "appsettings.Development.json",
               "DocumentMoniker": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\appsettings.Development.json",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\appsettings.Development.json",
               "ToolTip": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\appsettings.Development.json",
               "RelativeToolTip": "TaO10-BackEnd\\appsettings.Development.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAAeAAAAAAAAAA==",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAABoAAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2026-04-25T20:07:35.141Z",
               "EditorCaption": ""
@@ -1023,26 +1023,40 @@
               "RelativeDocumentMoniker": "TaO10-BackEnd\\appsettings.json",
               "ToolTip": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\appsettings.json",
               "RelativeToolTip": "TaO10-BackEnd\\appsettings.json",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAACwAAAAVAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-04-25T20:07:30.02Z"
+              "WhenOpened": "2026-04-25T20:07:30.02Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "AppDbContext.cs",
               "DocumentMoniker": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\Models\\AppDbContext.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Models\\AppDbContext.cs",
               "ToolTip": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\Models\\AppDbContext.cs",
               "RelativeToolTip": "TaO10-BackEnd\\Models\\AppDbContext.cs",
-              "ViewState": "AgIAADwAAAAAAAAAAAAYwD0AAAAFAAAAAAAAAA==",
+              "ViewState": "AgIAADMAAAAAAAAAAAAuwDwAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-20T10:42:44.723Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\Program.cs",
+              "RelativeDocumentMoniker": "TaO10-BackEnd\\Program.cs",
+              "ToolTip": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\Program.cs",
+              "RelativeToolTip": "TaO10-BackEnd\\Program.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAAB8AAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-25T20:07:35.625Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "AiRoadmapsController.cs",
               "DocumentMoniker": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\Controllers\\AiRoadmapsController.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Controllers\\AiRoadmapsController.cs",
@@ -1054,7 +1068,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "AiRoadmapService.cs",
               "DocumentMoniker": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\Services\\AiRoadmapService.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Services\\AiRoadmapService.cs",
@@ -1066,7 +1080,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "EmailService.cs",
               "DocumentMoniker": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\Services\\EmailService.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Services\\EmailService.cs",
@@ -1078,7 +1092,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "ExamMapper.cs",
               "DocumentMoniker": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\Mappers\\ExamMapper.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Mappers\\ExamMapper.cs",
@@ -1102,7 +1116,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "DashboardService.cs",
               "DocumentMoniker": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\Services\\DashboardService.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Services\\DashboardService.cs",
@@ -1114,7 +1128,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "IUserService.cs",
               "DocumentMoniker": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\Interfaces\\IUserService.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Interfaces\\IUserService.cs",
@@ -1126,7 +1140,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "IDashboardService.cs",
               "DocumentMoniker": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\Interfaces\\IDashboardService.cs",
               "RelativeDocumentMoniker": "TaO10-BackEnd\\Interfaces\\IDashboardService.cs",
@@ -1135,18 +1149,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-06-21T10:43:42.816Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\Program.cs",
-              "RelativeDocumentMoniker": "TaO10-BackEnd\\Program.cs",
-              "ToolTip": "D:\\TaO10\\TaO10-BackEnd\\TaO10-BackEnd\\Program.cs",
-              "RelativeToolTip": "TaO10-BackEnd\\Program.cs",
-              "ViewState": "AgIAAEUAAAAAAAAAAAAAAA8AAAAqAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-25T20:07:35.625Z"
             },
             {
               "$type": "Document",
