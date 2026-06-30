@@ -27,7 +27,7 @@ public class GeminiRoadmapService : IGeminiRoadmapService
 
     public async Task<GeneratedRoadmap> GenerateRoadmapAsync(UserExamAttempt attempt, CancellationToken cancellationToken = default)
     {
-        var apiKey = _configuration["Gemini:ApiKey"];
+        var apiKey = _configuration["Gemini:ApiKey"]?.Trim();
         if (string.IsNullOrWhiteSpace(apiKey))
         {
             throw new GeminiUnavailableException("Chưa cấu hình Gemini API key trên backend.");
@@ -62,7 +62,7 @@ public class GeminiRoadmapService : IGeminiRoadmapService
         string prompt,
         CancellationToken cancellationToken)
     {
-        var endpoint = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={Uri.EscapeDataString(apiKey)}";
+        var endpoint = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent";
         var requestBody = BuildRequestBody(prompt);
 
         for (var attemptNumber = 1; attemptNumber <= MaxAttemptsPerModel; attemptNumber++)
@@ -72,16 +72,23 @@ public class GeminiRoadmapService : IGeminiRoadmapService
             try
             {
                 using var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
-                using var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
+                using var request = new HttpRequestMessage(HttpMethod.Post, endpoint)
+                {
+                    Content = content
+                };
+                request.Headers.Add("x-goog-api-key", apiKey);
+
+                using var response = await _httpClient.SendAsync(request, cancellationToken);
                 var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
                 stopwatch.Stop();
 
                 _logger.LogInformation(
-                    "Gemini request completed. Model: {Model}. Attempt: {AttemptNumber}/{MaxAttempts}. PromptLength: {PromptLength}. StatusCode: {StatusCode}. DurationMs: {DurationMs}. ResponseBody: {ResponseBody}",
+                    "Gemini request completed. Model: {Model}. Attempt: {AttemptNumber}/{MaxAttempts}. PromptLength: {PromptLength}. ApiKeyPrefix: {ApiKeyPrefix}. StatusCode: {StatusCode}. DurationMs: {DurationMs}. ResponseBody: {ResponseBody}",
                     model,
                     attemptNumber,
                     MaxAttemptsPerModel,
                     prompt.Length,
+                    GetApiKeyPrefix(apiKey),
                     (int)response.StatusCode,
                     stopwatch.ElapsedMilliseconds,
                     responseBody);
@@ -329,6 +336,11 @@ Dữ liệu:
         var exponentialSeconds = Math.Pow(2, attemptNumber - 1);
         var jitterMs = Random.Shared.Next(150, 900);
         return TimeSpan.FromSeconds(exponentialSeconds) + TimeSpan.FromMilliseconds(jitterMs);
+    }
+
+    private static string GetApiKeyPrefix(string apiKey)
+    {
+        return apiKey.Length <= 6 ? "***" : $"{apiKey[..6]}...";
     }
 
     private static void ThrowGeminiException(HttpStatusCode statusCode)
