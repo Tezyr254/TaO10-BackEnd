@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Google.Apis.Auth.OAuth2;
 using TaO10_BackEnd.Exceptions;
 using TaO10_BackEnd.Models;
 
@@ -10,6 +12,12 @@ namespace TaO10_BackEnd.Services;
 public class GeminiRoadmapService : IGeminiRoadmapService
 {
     private const int MaxAttemptsPerModel = 5;
+    private static readonly string[] GeminiOAuthScopes =
+    {
+        "https://www.googleapis.com/auth/generative-language",
+        "https://www.googleapis.com/auth/cloud-platform"
+    };
+
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
     private readonly ILogger<GeminiRoadmapService> _logger;
@@ -27,10 +35,10 @@ public class GeminiRoadmapService : IGeminiRoadmapService
 
     public async Task<GeneratedRoadmap> GenerateRoadmapAsync(UserExamAttempt attempt, CancellationToken cancellationToken = default)
     {
-        var apiKey = _configuration["Gemini:ApiKey"]?.Trim();
-        if (string.IsNullOrWhiteSpace(apiKey))
+        var auth = await GetGeminiAuthAsync(cancellationToken);
+        if (auth == null)
         {
-            throw new GeminiUnavailableException("Chưa cấu hình Gemini API key trên backend.");
+            throw new GeminiUnavailableException("Chua cau hinh thong tin xac thuc Gemini tren backend.");
         }
 
         var prompt = BuildPrompt(attempt);
@@ -41,7 +49,7 @@ public class GeminiRoadmapService : IGeminiRoadmapService
             var model = models[modelIndex];
             try
             {
-                return await GenerateWithModelAsync(model, apiKey, prompt, cancellationToken);
+                return await GenerateWithModelAsync(model, auth, prompt, cancellationToken);
             }
             catch (GeminiUnavailableException) when (modelIndex < models.Count - 1)
             {
@@ -58,7 +66,7 @@ public class GeminiRoadmapService : IGeminiRoadmapService
 
     private async Task<GeneratedRoadmap> GenerateWithModelAsync(
         string model,
-        string apiKey,
+        GeminiAuth auth,
         string prompt,
         CancellationToken cancellationToken)
     {
@@ -76,19 +84,20 @@ public class GeminiRoadmapService : IGeminiRoadmapService
                 {
                     Content = content
                 };
-                request.Headers.Add("x-goog-api-key", apiKey);
+                ApplyAuthentication(request, auth);
 
                 using var response = await _httpClient.SendAsync(request, cancellationToken);
                 var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
                 stopwatch.Stop();
 
                 _logger.LogInformation(
-                    "Gemini request completed. Model: {Model}. Attempt: {AttemptNumber}/{MaxAttempts}. PromptLength: {PromptLength}. ApiKeyPrefix: {ApiKeyPrefix}. StatusCode: {StatusCode}. DurationMs: {DurationMs}. ResponseBody: {ResponseBody}",
+                    "Gemini request completed. Model: {Model}. Attempt: {AttemptNumber}/{MaxAttempts}. PromptLength: {PromptLength}. AuthType: {AuthType}. AuthPrefix: {AuthPrefix}. StatusCode: {StatusCode}. DurationMs: {DurationMs}. ResponseBody: {ResponseBody}",
                     model,
                     attemptNumber,
                     MaxAttemptsPerModel,
                     prompt.Length,
-                    GetApiKeyPrefix(apiKey),
+                    auth.Type,
+                    GetSecretPrefix(auth.Value),
                     (int)response.StatusCode,
                     stopwatch.ElapsedMilliseconds,
                     responseBody);
@@ -149,6 +158,44 @@ public class GeminiRoadmapService : IGeminiRoadmapService
         }
 
         throw new GeminiUnavailableException();
+    }
+
+    private async Task<GeminiAuth?> GetGeminiAuthAsync(CancellationToken cancellationToken)
+    {
+        var serviceAccountJson = _configuration["Gemini:ServiceAccountJson"]?.Trim();
+        if (!string.IsNullOrWhiteSpace(serviceAccountJson))
+        {
+            var credential = GoogleCredential
+                .FromJson(serviceAccountJson)
+                .CreateScoped(GeminiOAuthScopes);
+            var token = await ((ITokenAccess)credential).GetAccessTokenForRequestAsync(cancellationToken: cancellationToken);
+            return new GeminiAuth("oauth-service-account", token);
+        }
+
+        var accessToken = _configuration["Gemini:AccessToken"]?.Trim();
+        if (!string.IsNullOrWhiteSpace(accessToken))
+        {
+            return new GeminiAuth("oauth-access-token", accessToken);
+        }
+
+        var apiKey = _configuration["Gemini:ApiKey"]?.Trim();
+        if (!string.IsNullOrWhiteSpace(apiKey))
+        {
+            return new GeminiAuth("api-key", apiKey);
+        }
+
+        return null;
+    }
+
+    private static void ApplyAuthentication(HttpRequestMessage request, GeminiAuth auth)
+    {
+        if (auth.Type == "api-key")
+        {
+            request.Headers.Add("x-goog-api-key", auth.Value);
+            return;
+        }
+
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.Value);
     }
 
     private List<string> GetConfiguredModels()
@@ -338,9 +385,9 @@ Dữ liệu:
         return TimeSpan.FromSeconds(exponentialSeconds) + TimeSpan.FromMilliseconds(jitterMs);
     }
 
-    private static string GetApiKeyPrefix(string apiKey)
+    private static string GetSecretPrefix(string value)
     {
-        return apiKey.Length <= 6 ? "***" : $"{apiKey[..6]}...";
+        return value.Length <= 6 ? "***" : $"{value[..6]}...";
     }
 
     private static void ThrowGeminiException(HttpStatusCode statusCode)
@@ -366,6 +413,8 @@ Dữ liệu:
     }
 
     private sealed record SectionQuestionResult(string Section, bool IsCorrect, bool IsSkipped);
+
+    private sealed record GeminiAuth(string Type, string Value);
 
     private sealed class GeminiResponse
     {
