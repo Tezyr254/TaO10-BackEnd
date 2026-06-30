@@ -15,219 +15,219 @@ public class AiRoadmapService : IAiRoadmapService
     {
         new GeneratedRoadmap
         {
-            Summary = "AI hien chua san sang, he thong tam tao lo trinh on tap 3 tuan dua tren bai lam gan nhat cua ban. Tap trung uu tien cac cau sai, cau bo trong va nhung phan diem con thap.",
+            Summary = "Dựa trên bài làm gần nhất, lộ trình 3 tuần này giúp bạn củng cố nền tảng, giảm lỗi sai lặp lại và cải thiện các phần còn yếu. Hãy ưu tiên xem lại câu sai, luyện theo từng chủ điểm nhỏ và kiểm tra tiến bộ vào cuối mỗi tuần.",
             Strengths = new List<string>
             {
-                "Da hoan thanh bai luyen tap nen co du lieu de xay dung ke hoach hoc.",
-                "Co nen tang de nhan dien nhom cau hoi can cai thien.",
-                "Co the tang diem nhanh neu on theo tung chu diem nho."
+                "Bạn đã hoàn thành bài luyện tập nên có dữ liệu rõ ràng để xây dựng kế hoạch học.",
+                "Có thể xác định được nhóm câu hỏi cần cải thiện từ kết quả bài làm.",
+                "Có khả năng tăng điểm nhanh nếu ôn theo từng chủ điểm nhỏ và đều đặn."
             },
             Weaknesses = new List<string>
             {
-                "Can ra soat lai cac cau sai va ghi chu ly do sai.",
-                "Can luyen them toc do lam bai de han che bo trong cau hoi.",
-                "Can on tap deu tu vung, ngu phap va doc hieu."
+                "Cần rà soát lại các câu sai và ghi chú lý do sai.",
+                "Cần luyện thêm tốc độ làm bài để hạn chế bỏ trống câu hỏi.",
+                "Cần ôn tập đều từ vựng, ngữ pháp và đọc hiểu."
             },
             Weeks = new List<StudyRoadmapWeekResult>
             {
                 new StudyRoadmapWeekResult
                 {
-                    Title = "Tuan 1: Sua loi nen tang",
-                    Goal = "Nam lai cac loi sai thuong gap trong bai lam gan nhat.",
+                    Title = "Tuần 1: Sửa lỗi nền tảng",
+                    Goal = "Nắm lại các lỗi sai thường gặp trong bài làm gần nhất.",
                     Tasks = new List<string>
                     {
-                        "Doc lai toan bo cau sai va viet ly do sai cho tung cau.",
-                        "On 2 chu diem ngu phap yeu nhat trong bai.",
-                        "Lam 20 cau trac nghiem cung chu diem va cham lai dap an."
+                        "Đọc lại toàn bộ câu sai và viết lý do sai cho từng câu.",
+                        "Ôn 2 chủ điểm ngữ pháp yếu nhất trong bài.",
+                        "Làm 20 câu trắc nghiệm cùng chủ điểm và chấm lại đáp án."
                     }
                 },
                 new StudyRoadmapWeekResult
                 {
-                    Title = "Tuan 2: Tang toc do va do chinh xac",
-                    Goal = "Giam loi sai do vo y va cai thien thoi gian lam bai.",
+                    Title = "Tuần 2: Tăng tốc độ và độ chính xác",
+                    Goal = "Giảm lỗi sai do vội vàng và cải thiện thời gian làm bài.",
                     Tasks = new List<string>
                     {
-                        "Lam moi ngay mot set 15 cau trong 15 phut.",
-                        "Ghi lai tu moi va cum tu hay gap trong de.",
-                        "Luyen doc hieu ngan, tim y chinh va tu khoa."
+                        "Làm mỗi ngày một set 15 câu trong 15 phút.",
+                        "Ghi lại từ mới và cụm từ hay gặp trong đề.",
+                        "Luyện đọc hiểu ngắn, tìm ý chính và từ khóa."
                     }
                 },
                 new StudyRoadmapWeekResult
                 {
-                    Title = "Tuan 3: Tong on va thi thu",
-                    Goal = "On tong hop va kiem tra muc do tien bo.",
+                    Title = "Tuần 3: Tổng ôn và thi thử",
+                    Goal = "Ôn tổng hợp và kiểm tra mức độ tiến bộ.",
                     Tasks = new List<string>
                     {
-                        "Lam lai mot de day du trong gioi han thoi gian.",
-                        "So sanh diem voi bai truoc va tim nhom loi con lap lai.",
-                        "Chot danh sach chu diem can on truoc bai tiep theo."
+                        "Làm lại một đề đầy đủ trong giới hạn thời gian.",
+                        "So sánh điểm với bài trước và tìm nhóm lỗi còn lặp lại.",
+                        "Chốt danh sách chủ điểm cần ôn trước bài tiếp theo."
                     }
                 }
             },
-            DailyTime = "35-45 phut moi ngay",
-            NextAction = "Bat dau bang viec xem lai cac cau sai trong attempt gan nhat."
+            DailyTime = "35-45 phút mỗi ngày",
+            NextAction = "Bắt đầu bằng việc xem lại các câu sai trong bài làm gần nhất."
         },
         new GeneratedRoadmap
         {
-            Summary = "Day la lo trinh du phong khi dich vu AI tam thoi khong phan hoi. Ke hoach uu tien on tap theo chien luoc diem so: chac cau de, giam loi sai va cai thien doc hieu.",
+            Summary = "Lộ trình này ưu tiên chiến lược tăng điểm ổn định: giữ chắc các câu dễ, giảm lỗi sai lặp lại và cải thiện phần đọc hiểu. Bạn nên học theo từng phần nhỏ, có thời gian cố định mỗi ngày và ghi lại lỗi sau mỗi buổi luyện.",
             Strengths = new List<string>
             {
-                "Ban da co lich su lam bai de lam moc so sanh tien bo.",
-                "Co the cai thien diem nhanh bang cach sua nhom loi lap lai.",
-                "Kha nang on tap se tot hon khi chia bai thanh cac phan nho."
+                "Bạn đã có lịch sử làm bài để làm mốc so sánh tiến bộ.",
+                "Có thể cải thiện điểm nhanh bằng cách sửa nhóm lỗi lặp lại.",
+                "Việc ôn tập sẽ hiệu quả hơn khi chia bài thành các phần nhỏ."
             },
             Weaknesses = new List<string>
             {
-                "Can he thong hoa kien thuc thay vi hoc rai rac.",
-                "Can luyen them phan tu vung theo ngu canh.",
-                "Can duy tri thoi gian on tap co dinh moi ngay."
+                "Cần hệ thống hóa kiến thức thay vì học rải rác.",
+                "Cần luyện thêm phần từ vựng theo ngữ cảnh.",
+                "Cần duy trì thời gian ôn tập cố định mỗi ngày."
             },
             Weeks = new List<StudyRoadmapWeekResult>
             {
                 new StudyRoadmapWeekResult
                 {
-                    Title = "Tuan 1: Chac cau de",
-                    Goal = "Giu diem o cac cau nhan biet va thong hieu.",
+                    Title = "Tuần 1: Chắc câu dễ",
+                    Goal = "Giữ điểm ở các câu nhận biết và thông hiểu.",
                     Tasks = new List<string>
                     {
-                        "On thi, cau bi dong, so sanh va cau dieu kien.",
-                        "Lam 30 cau muc do de-trung binh va ghi loi sai.",
-                        "Tao bang cong thuc ngu phap ca nhan."
+                        "Ôn thì, câu bị động, so sánh và câu điều kiện.",
+                        "Làm 30 câu mức độ dễ-trung bình và ghi lỗi sai.",
+                        "Tạo bảng công thức ngữ pháp cá nhân."
                     }
                 },
                 new StudyRoadmapWeekResult
                 {
-                    Title = "Tuan 2: Xu ly tu vung va doc hieu",
-                    Goal = "Tang kha nang suy luan tu ngu canh.",
+                    Title = "Tuần 2: Xử lý từ vựng và đọc hiểu",
+                    Goal = "Tăng khả năng suy luận từ ngữ cảnh.",
                     Tasks = new List<string>
                     {
-                        "Hoc 8-10 tu moi moi ngay theo chu de.",
-                        "Doc 3 doan van ngan va gach chan tu khoa.",
-                        "Luyen cau hoi dong nghia, trai nghia va dien tu."
+                        "Học 8-10 từ mới mỗi ngày theo chủ đề.",
+                        "Đọc 3 đoạn văn ngắn và gạch chân từ khóa.",
+                        "Luyện câu hỏi đồng nghĩa, trái nghĩa và điền từ."
                     }
                 },
                 new StudyRoadmapWeekResult
                 {
-                    Title = "Tuan 3: Luyen de co chien thuat",
-                    Goal = "Lam bai co thu tu uu tien va kiem soat thoi gian.",
+                    Title = "Tuần 3: Luyện đề có chiến thuật",
+                    Goal = "Làm bài có thứ tự ưu tiên và kiểm soát thời gian.",
                     Tasks = new List<string>
                     {
-                        "Lam phan de chac truoc, danh dau cau kho sau.",
-                        "Dat gio khi lam de de tao ap luc nhu thi that.",
-                        "Tong ket 5 loi sai lon nhat sau moi de."
+                        "Làm phần dễ chắc trước, đánh dấu câu khó sau.",
+                        "Đặt giờ khi làm đề để tạo áp lực như thi thật.",
+                        "Tổng kết 5 lỗi sai lớn nhất sau mỗi đề."
                     }
                 }
             },
-            DailyTime = "40 phut moi ngay",
-            NextAction = "Chon 1 chu diem ngu phap sai nhieu nhat va lam 15 cau luyen tap."
+            DailyTime = "40 phút mỗi ngày",
+            NextAction = "Chọn 1 chủ điểm ngữ pháp sai nhiều nhất và làm 15 câu luyện tập."
         },
         new GeneratedRoadmap
         {
-            Summary = "AI dang gap loi ket noi nen he thong tao ke hoach mau theo huong phuc hoi diem yeu. Lo trinh nay phu hop khi ban muon on lai tu bai lam gan nhat va tang diem on dinh.",
+            Summary = "Lộ trình này tập trung phục hồi điểm yếu từ bài làm gần nhất. Trong 3 tuần, bạn sẽ phân tích lỗi sai, luyện theo nhóm kỹ năng và làm bài kiểm tra lại để đo mức tiến bộ.",
             Strengths = new List<string>
             {
-                "Ban co the theo doi tien bo qua tung lan lam bai.",
-                "Da co du lieu cau dung, cau sai de xac dinh muc uu tien.",
-                "Co the hoc hieu qua neu on theo chu ky ngan moi ngay."
+                "Bạn có thể theo dõi tiến bộ qua từng lần làm bài.",
+                "Đã có dữ liệu câu đúng, câu sai để xác định mức ưu tiên.",
+                "Có thể học hiệu quả nếu ôn theo chu kỳ ngắn mỗi ngày."
             },
             Weaknesses = new List<string>
             {
-                "Can tranh hoc don don vao ngay cuoi.",
-                "Can luyen ky nang doc de va loai tru dap an.",
-                "Can on lai cac cau sai thay vi chi xem dap an dung."
+                "Cần tránh học dồn vào ngày cuối.",
+                "Cần luyện kỹ năng đọc đề và loại trừ đáp án.",
+                "Cần ôn lại các câu sai thay vì chỉ xem đáp án đúng."
             },
             Weeks = new List<StudyRoadmapWeekResult>
             {
                 new StudyRoadmapWeekResult
                 {
-                    Title = "Tuan 1: Phan tich loi sai",
-                    Goal = "Biet ro vi sao tung cau sai va cach tranh lap lai.",
+                    Title = "Tuần 1: Phân tích lỗi sai",
+                    Goal = "Biết rõ vì sao từng câu sai và cách tránh lặp lại.",
                     Tasks = new List<string>
                     {
-                        "Chia cau sai thanh nhom ngu phap, tu vung, doc hieu.",
-                        "Viet lai quy tac dung cho moi cau sai quan trong.",
-                        "Lam lai cac cau sai sau 24 gio."
+                        "Chia câu sai thành nhóm ngữ pháp, từ vựng, đọc hiểu.",
+                        "Viết lại quy tắc đúng cho mỗi câu sai quan trọng.",
+                        "Làm lại các câu sai sau 24 giờ."
                     }
                 },
                 new StudyRoadmapWeekResult
                 {
-                    Title = "Tuan 2: Luyen theo nhom ky nang",
-                    Goal = "Cai thien nhom ky nang co so cau sai cao nhat.",
+                    Title = "Tuần 2: Luyện theo nhóm kỹ năng",
+                    Goal = "Cải thiện nhóm kỹ năng có số câu sai cao nhất.",
                     Tasks = new List<string>
                     {
-                        "Moi ngay luyen 1 nhom cau hoi trong 25 phut.",
-                        "Ghi 5 tu/cum tu moi vao so tay.",
-                        "Lam bai tap tong hop cuoi tuan."
+                        "Mỗi ngày luyện 1 nhóm câu hỏi trong 25 phút.",
+                        "Ghi 5 từ/cụm từ mới vào sổ tay.",
+                        "Làm bài tập tổng hợp cuối tuần."
                     }
                 },
                 new StudyRoadmapWeekResult
                 {
-                    Title = "Tuan 3: Kiem tra lai",
-                    Goal = "Do lai diem va dieu chinh chien luoc on tap.",
+                    Title = "Tuần 3: Kiểm tra lại",
+                    Goal = "Đo lại điểm và điều chỉnh chiến lược ôn tập.",
                     Tasks = new List<string>
                     {
-                        "Lam mot bai thi thu moi.",
-                        "So sanh ty le sai theo tung phan voi attempt cu.",
-                        "Lap danh sach 3 muc tieu cho lan luyen tiep theo."
+                        "Làm một bài thi thử mới.",
+                        "So sánh tỷ lệ sai theo từng phần với bài làm cũ.",
+                        "Lập danh sách 3 mục tiêu cho lần luyện tiếp theo."
                     }
                 }
             },
-            DailyTime = "30-50 phut moi ngay",
-            NextAction = "Mo lai bai lam gan nhat va gom cac cau sai vao 3 nhom."
+            DailyTime = "30-50 phút mỗi ngày",
+            NextAction = "Mở lại bài làm gần nhất và gom các câu sai vào 3 nhóm."
         },
         new GeneratedRoadmap
         {
-            Summary = "Do Gemini chua phan hoi thanh cong, day la lo trinh du phong de ban van co ke hoach hoc ngay. Trong 3 tuan, hay uu tien hoc deu, cham loi ky va lam de co gioi han thoi gian.",
+            Summary = "Lộ trình 3 tuần này giúp bạn học đều, chấm lỗi kỹ và luyện đề có giới hạn thời gian. Mục tiêu là biến lỗi sai thành danh sách hành động cụ thể để bạn biết cần ôn gì sau mỗi buổi học.",
             Strengths = new List<string>
             {
-                "Ban da co dong luc cap nhat lo trinh hoc.",
-                "Du lieu attempt giup xac dinh muc tieu on tap ro hon.",
-                "Neu duy tri tien do hang ngay, diem co the cai thien on dinh."
+                "Bạn đã có động lực cập nhật lộ trình học.",
+                "Dữ liệu bài làm giúp xác định mục tiêu ôn tập rõ hơn.",
+                "Nếu duy trì tiến độ hằng ngày, điểm có thể cải thiện ổn định."
             },
             Weaknesses = new List<string>
             {
-                "Can tang tinh ky luat khi on tap moi ngay.",
-                "Can luyen cach phan bo thoi gian trong de.",
-                "Can cu the hoa loi sai thanh hanh dong on tap."
+                "Cần tăng tính kỷ luật khi ôn tập mỗi ngày.",
+                "Cần luyện cách phân bổ thời gian trong đề.",
+                "Cần cụ thể hóa lỗi sai thành hành động ôn tập."
             },
             Weeks = new List<StudyRoadmapWeekResult>
             {
                 new StudyRoadmapWeekResult
                 {
-                    Title = "Tuan 1: On lai kien thuc cot loi",
-                    Goal = "Lap lai nen tang ngu phap va tu vung hay gap.",
+                    Title = "Tuần 1: Ôn lại kiến thức cốt lõi",
+                    Goal = "Lặp lại nền tảng ngữ pháp và từ vựng hay gặp.",
                     Tasks = new List<string>
                     {
-                        "On 4 chu diem ngu phap co tan suat cao.",
-                        "Lam flashcard cho tu vung moi va cum tu kho.",
-                        "Moi ngay lam 10 cau de giu nhip hoc."
+                        "Ôn 4 chủ điểm ngữ pháp có tần suất cao.",
+                        "Làm flashcard cho từ vựng mới và cụm từ khó.",
+                        "Mỗi ngày làm 10 câu để giữ nhịp học."
                     }
                 },
                 new StudyRoadmapWeekResult
                 {
-                    Title = "Tuan 2: Thuc hanh co muc tieu",
-                    Goal = "Giam so cau sai o nhom yeu nhat.",
+                    Title = "Tuần 2: Thực hành có mục tiêu",
+                    Goal = "Giảm số câu sai ở nhóm yếu nhất.",
                     Tasks = new List<string>
                     {
-                        "Chon nhom cau sai nhieu nhat de luyen rieng.",
-                        "Lam bai tap theo cap do tu de den kho.",
-                        "Sau moi bai, ghi lai mot meo tranh sai."
+                        "Chọn nhóm câu sai nhiều nhất để luyện riêng.",
+                        "Làm bài tập theo cấp độ từ dễ đến khó.",
+                        "Sau mỗi bài, ghi lại một mẹo tránh sai."
                     }
                 },
                 new StudyRoadmapWeekResult
                 {
-                    Title = "Tuan 3: Ve dich",
-                    Goal = "Mo phong bai thi va chot chien thuat lam bai.",
+                    Title = "Tuần 3: Về đích",
+                    Goal = "Mô phỏng bài thi và chốt chiến thuật làm bài.",
                     Tasks = new List<string>
                     {
-                        "Lam 2 de ngan co bam gio.",
-                        "Kiem tra lai cac cong thuc hay quen.",
-                        "Sap xep thu tu lam bai phu hop voi diem manh cua ban."
+                        "Làm 2 đề ngắn có bấm giờ.",
+                        "Kiểm tra lại các công thức hay quên.",
+                        "Sắp xếp thứ tự làm bài phù hợp với điểm mạnh của bạn."
                     }
                 }
             },
-            DailyTime = "45 phut moi ngay",
-            NextAction = "Dat lich hoc 3 ngay dau tien va hoan thanh set 10 cau dau."
+            DailyTime = "45 phút mỗi ngày",
+            NextAction = "Đặt lịch học 3 ngày đầu tiên và hoàn thành set 10 câu đầu."
         }
     };
 
