@@ -333,6 +333,11 @@ Dữ liệu:
 
     private static void ThrowGeminiException(HttpStatusCode statusCode)
     {
+        if (statusCode == HttpStatusCode.Unauthorized || statusCode == HttpStatusCode.Forbidden)
+        {
+            throw new GeminiUnavailableException("Gemini API key khong hop le hoac chua duoc cap quyen.");
+        }
+
         if (statusCode == HttpStatusCode.TooManyRequests)
         {
             throw new GeminiQuotaExceededException();
